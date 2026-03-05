@@ -461,9 +461,7 @@
       </div>
     </div>
   </div>
-
   <script>
-
         // ==================== FIREBASE CONFIG ====================
     const firebaseConfig = {
         apiKey: "AIzaSyA0qX8mZbJk90Qlgzq_kPQRJEU60BR4pDo",
@@ -637,6 +635,7 @@
     const nodesContainer = document.getElementById('nodesContainer');
     const gridPattern = document.getElementById('gridPattern');
 
+    // ==================== PERSISTENCE ====================
     function loadData() {
       const saved = localStorage.getItem('projectNexusDataV6');
       if (saved) {
