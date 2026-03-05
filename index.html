@@ -637,7 +637,7 @@
     const nodesContainer = document.getElementById('nodesContainer');
     const gridPattern = document.getElementById('gridPattern');
 
-    /    function loadData() {
+    function loadData() {
       const saved = localStorage.getItem('projectNexusDataV6');
       if (saved) {
         const data = JSON.parse(saved); tasks = data.tasks || []; nextId = data.nextId || 1;
