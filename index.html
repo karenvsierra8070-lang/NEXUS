@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Nexus - Sincronizado</title>
+  <title>Project Nexus - Optimizado</title>
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Firebase SDKs -->
+  <!-- AGREGAR ESTO -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   
+  <link rel="preconnect"...
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -178,8 +179,6 @@
     .btn-secondary:hover { background: var(--card-hover); border-color: var(--border-light); }
     .btn-danger { background: rgba(255, 92, 92, 0.1); color: var(--danger); border: 1px solid rgba(255, 92, 92, 0.3); }
     .btn-danger:hover { background: rgba(255, 92, 92, 0.2); border-color: var(--danger); }
-    .btn-google { background: #fff; color: #757575; border: 1px solid #ddd; }
-    .btn-google:hover { background: #f8f8f8; }
 
     .sidebar { background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg) 100%); border-left: 1px solid var(--border); }
     .stat-card { background: linear-gradient(135deg, var(--card) 0%, rgba(18, 21, 28, 0.8) 100%); border: 1px solid var(--border); border-radius: 14px; padding: 16px; position: relative; overflow: hidden; }
@@ -209,6 +208,10 @@
     .tag-medium { background: rgba(92, 158, 255, 0.15); color: var(--info); }
     .tag-low { background: rgba(107, 117, 136, 0.15); color: var(--muted); }
 
+        /* AGREGAR ESTO AL FINAL DE <style> */
+    .btn-google { background: #fff; color: #757575; border: 1px solid #ddd; }
+    .btn-google:hover { background: #f8f8f8; }
+
     /* Toast */
     #toastContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
     .toast { padding: 14px 20px; border-radius: 10px; background: var(--card); border: 1px solid var(--accent); color: var(--fg); box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: 10px; font-size: 14px; }
@@ -230,13 +233,13 @@
 <body>
   <div class="bg-atmosphere"></div>
 
-  <!-- Login Modal -->
+
+  <!-- AGREGAR ESTO -->
   <div id="loginModal" class="modal-overlay active">
     <div class="modal-content p-8 text-center" style="max-width: 400px;">
         <h2 class="text-2xl font-bold mb-2">Project Nexus</h2>
         <p class="text-[--muted] mb-6 text-sm">Inicia sesión para sincronizar</p>
         
-        <!-- Botón Google -->
         <button onclick="loginWithGoogle()" class="btn btn-google w-full mb-4">
             <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -272,10 +275,10 @@
         </div>
         <div>
           <h1 class="text-xl font-bold tracking-tight">Project Nexus</h1>
-          <p class="text-xs text-[--muted] tracking-wide" id="userStatusText">Espacio de Trabajo Infinito</p>
-        </div>
+       <p class="text-xs text-[--muted] tracking-wide" id="userStatusText">Espacio de Trabajo Infinito</p>        </div>
       </div>
       <div class="flex items-center gap-3">
+        <!-- BOTONES NAVEGACION -->
         <a href="E1.html" class="btn btn-secondary hidden md:flex" title="Modo Enfoque">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span class="hidden md:inline">Enfoque</span>
@@ -301,9 +304,6 @@
         <button id="addTaskBtn" class="btn btn-primary">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span class="hidden sm:inline">Nueva Tarea</span>
-        </button>
-        <button onclick="logoutUser()" class="btn btn-danger p-2 hidden" id="logoutBtn" title="Cerrar sesión">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         </button>
       </div>
     </div>
@@ -421,6 +421,10 @@
           <button onclick="closeTaskModal()" class="w-9 h-9 rounded-xl bg-[--bg] flex items-center justify-center hover:bg-[--card-hover] transition-colors border border-[--border]">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
+
+               <button onclick="logoutUser()" class="btn btn-danger p-2 hidden" id="logoutBtn" title="Cerrar sesión">
+         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+     </button>
         </div>
       </div>
       <div class="p-6 space-y-5">
@@ -459,7 +463,8 @@
   </div>
 
   <script>
-    // ==================== FIREBASE CONFIG ====================
+
+        // ==================== FIREBASE CONFIG ====================
     const firebaseConfig = {
         apiKey: "AIzaSyA0qX8mZbJk90Qlgzq_kPQRJEU60BR4pDo",
         authDomain: "nexus-f0f5e.firebaseapp.com",
@@ -484,7 +489,7 @@
             document.getElementById('loginModal').classList.remove('active');
             document.getElementById('logoutBtn').classList.remove('hidden');
             document.getElementById('userStatusText').textContent = user.displayName || user.email;
-            initApp();
+            initApp(); 
         } else {
             currentUser = null;
             document.getElementById('loginModal').classList.add('active');
@@ -514,6 +519,8 @@
 
     function logoutUser() { auth.signOut(); }
 
+    // ==================== STATE ====================
+    // (Tu código original de STATE empieza aquí...)
     // ==================== STATE ====================
     let tasks = [];
     let nextId = 1;
@@ -630,8 +637,7 @@
     const nodesContainer = document.getElementById('nodesContainer');
     const gridPattern = document.getElementById('gridPattern');
 
-    // ==================== PERSISTENCE ====================
-    function loadData() {
+    /    function loadData() {
       const saved = localStorage.getItem('projectNexusDataV6');
       if (saved) {
         const data = JSON.parse(saved); tasks = data.tasks || []; nextId = data.nextId || 1;
@@ -673,8 +679,7 @@
          }
       });
     }
-
-    // ==================== WORLD RENDERING ====================
+    // ==================== WORLD RENDERING (ORIGINAL SIN CAMBIOS) ====================
     function updateWorldTransform() { world.style.transform = `translate(${-worldX}px, ${-worldY}px)`; gridPattern.style.transform = `translate(${worldX % 50}px, ${worldY % 50}px)`; drawConnections(); }
     function resizeCanvas() { canvas.width = viewport.offsetWidth; canvas.height = viewport.offsetHeight; drawConnections(); }
 
@@ -689,6 +694,7 @@
                 if (fromNode && toNode) {
                     const fromLeft = parseInt(fromNode.style.left); const fromTop = parseInt(fromNode.style.top);
                     const toLeft = parseInt(toNode.style.left); const toTop = parseInt(toNode.style.top);
+                    // LOGICA ORIGINAL INTACTA
                     const fromX = (fromLeft - worldX) + fromNode.offsetWidth; 
                     const fromY = (fromTop - worldY) + fromNode.offsetHeight / 2;
                     const toX = toLeft - worldX; 
@@ -766,46 +772,152 @@
     function setupImageUpload() { const dropZone = document.getElementById('imageDropZone'); const input = document.getElementById('taskImage'); const removeBtn = document.getElementById('removeImageBtn'); dropZone.addEventListener('click', () => input.click()); dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-[--accent]'); }); dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[--accent]')); dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('border-[--accent]'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) handleImageFile(file); }); input.addEventListener('change', (e) => { if (e.target.files[0]) handleImageFile(e.target.files[0]); }); removeBtn.addEventListener('click', () => { imageData = null; input.value = ''; document.getElementById('imagePlaceholder').classList.remove('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); }); }
     function handleImageFile(file) { const reader = new FileReader(); reader.onload = (e) => { imageData = e.target.result; document.getElementById('imagePreview').src = imageData; document.getElementById('imagePlaceholder').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.remove('hidden'); }; reader.readAsDataURL(file); }
 
-    // ==================== ROUTE OPTIMIZATION ====================
+    // ==================== ROUTE OPTIMIZATION (CORREGIDO) ====================
     function calculateOptimalRoute() {
         const deadline = document.getElementById('deadlineInput').value; const hoursPerDay = parseFloat(document.getElementById('hoursPerDay').value) || 5; if (!deadline) { showToast('Selecciona una fecha limite.', 'error'); playSound('error'); return; }
         stats.routeCalculations++; checkAchievements();
         const deadlineDate = new Date(deadline); const today = new Date(); today.setHours(0, 0, 0, 0);
-        const diffTime = deadlineDate - today; const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24))); const availableHours = daysRemaining * hoursPerDay;
+        const diffTime = deadlineDate - today;
+        const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+        const availableHours = daysRemaining * hoursPerDay;
         document.getElementById('availableHours').textContent = availableHours; tasks.forEach(t => t.isCritical = false);
+        
         const routes = findAllRoutesFixed();
+        
         allCalculatedRoutes = routes.map(route => {
-            let timeAccum = 0; const tasksWithTimes = []; const sortedTasks = topologicalSort(route);
-            for (const task of sortedTasks) { if (task.completed) continue; tasksWithTimes.push({ ...task, startHour: timeAccum, endHour: timeAccum + task.duration }); timeAccum += task.duration; }
+            let timeAccum = 0;
+            const tasksWithTimes = [];
+            const sortedTasks = topologicalSort(route);
+            for (const task of sortedTasks) {
+                if (task.completed) continue;
+                tasksWithTimes.push({ ...task, startHour: timeAccum, endHour: timeAccum + task.duration });
+                timeAccum += task.duration;
+            }
             const completedCount = tasksWithTimes.filter(t => tasks.find(task => task.id === t.id)?.completed).length;
-            return { tasks: tasksWithTimes, taskCount: tasksWithTimes.length, completedCount, totalDuration: timeAccum, availableHours, daysRemaining, hoursPerDay, progress: tasksWithTimes.length > 0 ? (completedCount / tasksWithTimes.length) * 100 : 0 };
+            return { 
+                tasks: tasksWithTimes, 
+                taskCount: tasksWithTimes.length, 
+                completedCount,
+                totalDuration: timeAccum, 
+                availableHours, 
+                daysRemaining, 
+                hoursPerDay, 
+                progress: tasksWithTimes.length > 0 ? (completedCount / tasksWithTimes.length) * 100 : 0 
+            };
         }).filter(r => r.tasks.length > 0);
-        allCalculatedRoutes.sort((a, b) => { if (b.taskCount !== a.taskCount) return b.taskCount - a.taskCount; return a.totalDuration - b.totalDuration; });
+
+        // Sort: Most tasks first, then shortest time
+        allCalculatedRoutes.sort((a, b) => {
+           if (b.taskCount !== a.taskCount) return b.taskCount - a.taskCount;
+           return a.totalDuration - b.totalDuration;
+        });
+
+        // Mark Critical (Longest duration)
         if (allCalculatedRoutes.length > 0) {
             const longestDuration = Math.max(...allCalculatedRoutes.map(r => r.totalDuration));
-            allCalculatedRoutes.forEach(route => { if (route.totalDuration === longestDuration) { route.tasks.forEach(t => { const task = tasks.find(task => task.id === t.id); if (task) task.isCritical = true; }); } });
+            allCalculatedRoutes.forEach(route => {
+                if (route.totalDuration === longestDuration) {
+                    route.tasks.forEach(t => {
+                        const task = tasks.find(task => task.id === t.id);
+                        if (task) task.isCritical = true;
+                    });
+                }
+            });
         }
-        const criticalDuration = tasks.filter(t => t.isCritical).reduce((sum, t) => sum + t.duration, 0); document.getElementById('criticalPath').textContent = criticalDuration.toFixed(1);
+
+        const criticalDuration = tasks.filter(t => t.isCritical).reduce((sum, t) => sum + t.duration, 0);
+        document.getElementById('criticalPath').textContent = criticalDuration.toFixed(1);
+
         currentAnalysis = { recommended: allCalculatedRoutes[0] || null, alternatives: allCalculatedRoutes.slice(1, 4), availableHours, hoursPerDay, daysRemaining };
-        saveData(); renderNodes(); displayAnalysis(currentAnalysis); if(document.getElementById('routesModal').classList.contains('active')) displayRoutesModal();
+        saveData(); renderNodes(); displayAnalysis(currentAnalysis);
+        if(document.getElementById('routesModal').classList.contains('active')) displayRoutesModal();
     }
+
     function topologicalSort(routeTasks) {
-        const sorted = []; const visited = new Set(); const visiting = new Set(); const taskMap = new Map(routeTasks.map(t => [t.id, t]));
-        function visit(task) { if (visited.has(task.id)) return; if (visiting.has(task.id)) return; visiting.add(task.id); task.dependencies.forEach(depId => { if (taskMap.has(depId)) visit(taskMap.get(depId)); }); visiting.delete(task.id); visited.add(task.id); sorted.push(task); }
-        routeTasks.forEach(t => visit(t)); return sorted;
-    }
-    function findAllRoutesFixed() {
-        const allRoutes = []; function dfs(currentTask, currentPath, visitedIds) { visitedIds.add(currentTask.id); currentPath.push(currentTask); const children = tasks.filter(t => !t.completed && !visitedIds.has(t.id) && t.dependencies.includes(currentTask.id));
-            if (children.length === 0) { allRoutes.push([...currentPath]); } else { children.forEach(child => { dfs(child, [...currentPath], new Set(visitedIds)); }); }
+        const sorted = []; const visited = new Set(); const visiting = new Set();
+        const taskMap = new Map(routeTasks.map(t => [t.id, t]));
+        function visit(task) {
+            if (visited.has(task.id)) return;
+            if (visiting.has(task.id)) return; // Cycle
+            visiting.add(task.id);
+            task.dependencies.forEach(depId => {
+                if (taskMap.has(depId)) visit(taskMap.get(depId));
+            });
+            visiting.delete(task.id);
+            visited.add(task.id);
+            sorted.push(task);
         }
-        const startNodes = tasks.filter(t => !t.completed && (t.dependencies.length === 0 || t.dependencies.some(d => tasks.find(x => x.id === d)?.completed))); startNodes.forEach(start => { dfs(start, [], new Set()); }); return allRoutes;
+        routeTasks.forEach(t => visit(t));
+        return sorted;
     }
-    function displayAnalysis(analysis) { const section = document.getElementById('analysisSection'); const content = document.getElementById('analysisContent'); section.classList.remove('hidden'); if (!analysis.recommended || analysis.recommended.tasks.length === 0) { content.innerHTML = `<div class="p-4 bg-[--card] rounded-xl border border-[--border] text-center"><p class="text-[--muted]">No hay rutas.</p></div>`; return; } const rec = analysis.recommended; const timeUsedPercent = Math.min(100, (rec.totalDuration / rec.availableHours) * 100); let html = `<div class="mb-4 p-4 bg-[--bg] rounded-xl border border-[--border]"><div class="flex justify-between items-center mb-2"><span class="text-sm text-[--muted]">Tiempo</span><span class="mono text-sm font-semibold">${rec.availableHours}h (${analysis.daysRemaining}d)</span></div><div class="time-bar"><div class="time-bar-fill" style="width: ${timeUsedPercent}%; background: linear-gradient(90deg, var(--accent), var(--info));"></div></div></div>`; html += `<div class="route-card recommended mb-4"><div class="flex items-center justify-between mb-3"><span class="font-semibold">Recomendada</span><span class="text-sm mono text-[--accent]">${rec.taskCount} tareas - ${rec.totalDuration}h</span></div>`; rec.tasks.forEach((task, i) => { html += `<div class="route-step"><span class="step-number bg-[--accent] text-[--bg]">${i + 1}</span><div class="flex-1"><p class="text-sm font-medium">${escapeHtml(task.name)}</p><span class="mono text-xs text-[--muted]">${task.duration}h</span></div></div>`; if (i < rec.tasks.length - 1) html += `<div class="route-connector"></div>`; }); html += `</div>`; content.innerHTML = html; }
+
+    // CORREGIDO: Find ALL routes properly
+    function findAllRoutesFixed() {
+        const allRoutes = [];
+        
+        // Helper: DFS
+        function dfs(currentTask, currentPath, visitedIds) {
+            visitedIds.add(currentTask.id);
+            currentPath.push(currentTask);
+
+            // Find children (dependents) that are not completed and not visited
+            const children = tasks.filter(t => 
+                !t.completed && 
+                !visitedIds.has(t.id) && 
+                t.dependencies.includes(currentTask.id)
+            );
+
+            if (children.length === 0) {
+                // End of path (leaf node)
+                allRoutes.push([...currentPath]);
+            } else {
+                // Continue path for each child
+                children.forEach(child => {
+                    dfs(child, [...currentPath], new Set(visitedIds));
+                });
+            }
+        }
+
+        // Find start nodes (roots): Not completed, and (No deps OR at least one dep completed)
+        const startNodes = tasks.filter(t => 
+            !t.completed && 
+            (t.dependencies.length === 0 || t.dependencies.some(d => tasks.find(x => x.id === d)?.completed))
+        );
+
+        // Start DFS from each start node
+        startNodes.forEach(start => {
+            dfs(start, [], new Set());
+        });
+
+        // Convert arrays of objects to arrays of task objects (already are)
+        return allRoutes;
+    }
+
+    function displayAnalysis(analysis) {
+        const section = document.getElementById('analysisSection'); const content = document.getElementById('analysisContent'); section.classList.remove('hidden');
+        if (!analysis.recommended || analysis.recommended.tasks.length === 0) { content.innerHTML = `<div class="p-4 bg-[--card] rounded-xl border border-[--border] text-center"><p class="text-[--muted]">No hay rutas posibles.</p></div>`; return; }
+        const rec = analysis.recommended; const timeUsedPercent = Math.min(100, (rec.totalDuration / rec.availableHours) * 100);
+        let html = `<div class="mb-4 p-4 bg-[--bg] rounded-xl border border-[--border]"><div class="flex justify-between items-center mb-2"><span class="text-sm text-[--muted]">Tiempo disponible</span><span class="mono text-sm font-semibold">${rec.availableHours}h (${analysis.daysRemaining} dias x ${analysis.hoursPerDay}h)</span></div><div class="time-bar"><div class="time-bar-fill" style="width: ${timeUsedPercent}%; background: linear-gradient(90deg, var(--accent), var(--info));"></div></div><div class="flex justify-between mt-2 text-xs text-[--muted]"><span>Usado: ${rec.totalDuration}h</span><span>Restante: ${Math.max(0, rec.availableHours - rec.totalDuration)}h</span></div></div>`;
+        html += `<div class="route-card recommended mb-4"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-[--accent] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-[--bg]"><polyline points="20 6 9 17 4 12"/></svg></span><span class="font-semibold">Ruta Recomendada</span></div><span class="text-sm mono text-[--accent]">${rec.taskCount} tareas en ${rec.totalDuration}h</span></div>`;
+        rec.tasks.forEach((task, i) => { const fitsInTime = task.endHour <= rec.availableHours; html += `<div class="route-step ${task.completed ? 'completed' : ''}"><span class="step-number ${fitsInTime ? 'bg-[--accent] text-[--bg]' : 'bg-[--border] text-[--muted]'}">${i + 1}</span><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${escapeHtml(task.name)}</p><div class="flex items-center gap-2 text-xs text-[--muted]"><span class="mono">${task.duration}h</span><span>h${task.startHour.toFixed(0)} - h${task.endHour.toFixed(0)}</span>${!fitsInTime ? '<span class="text-[--warning]">(fuera de tiempo)</span>' : ''}</div></div>${task.isCritical ? '<span class="tag tag-critical text-xs">Critica</span>' : ''}</div>`; if (i < rec.tasks.length - 1) html += `<div class="route-connector"></div>`; });
+        html += `</div>`;
+        content.innerHTML = html;
+    }
 
     // ==================== ROUTES POPUP ====================
     function openRoutesModal() { if(allCalculatedRoutes.length === 0) calculateOptimalRoute(); displayRoutesModal(); document.getElementById('routesModal').classList.add('active'); }
     function closeRoutesModal() { document.getElementById('routesModal').classList.remove('active'); }
-    function displayRoutesModal() { const content = document.getElementById('routesModalContent'); content.innerHTML = ''; if (allCalculatedRoutes.length === 0) { content.innerHTML = '<p class="text-center text-[--muted]">No hay rutas.</p>'; return; } allCalculatedRoutes.forEach((route, index) => { const item = document.createElement('div'); item.className = 'route-item'; if (activeRouteIndex === index) item.classList.add('active'); item.innerHTML = `<div class="route-header"><div><span class="text-sm font-medium">Ruta ${index + 1}</span><span class="text-xs text-[--muted] ml-2">${route.taskCount} tareas</span></div><span class="text-xs mono">${Math.round(route.progress)}%</span></div><div class="route-progress"><div class="route-progress-fill" style="width: ${route.progress}%;"></div></div>`; item.addEventListener('click', () => { activeRouteIndex = (activeRouteIndex === index) ? null : index; saveData(); renderNodes(); displayRoutesModal(); }); content.appendChild(item); }); }
+    function displayRoutesModal() {
+        const content = document.getElementById('routesModalContent'); content.innerHTML = '';
+        if (allCalculatedRoutes.length === 0) { content.innerHTML = '<p class="text-center text-[--muted]">No hay rutas.</p>'; return; }
+        allCalculatedRoutes.forEach((route, index) => {
+            const item = document.createElement('div'); item.className = 'route-item'; if (activeRouteIndex === index) item.classList.add('active');
+            const progressColor = route.progress === 100 ? 'var(--accent)' : 'var(--info)';
+            item.innerHTML = `<div class="route-header"><div><span class="text-sm font-medium">Ruta ${index + 1}</span><span class="text-xs text-[--muted] ml-2">${route.taskCount} tareas - ${route.totalDuration}h</span></div><span class="text-xs mono">${Math.round(route.progress)}%</span></div><div class="route-progress"><div class="route-progress-fill" style="width: ${route.progress}%; background: ${progressColor};"></div></div>`;
+            item.addEventListener('click', () => { activeRouteIndex = (activeRouteIndex === index) ? null : index; saveData(); renderNodes(); displayRoutesModal(); });
+            content.appendChild(item);
+        });
+    }
     document.getElementById('viewRoutesBtn').addEventListener('click', openRoutesModal);
 
     // ==================== TOAST ====================
@@ -815,29 +927,21 @@
     function updateStats() { document.getElementById('totalTasks').textContent = tasks.length; document.getElementById('completedTasks').textContent = tasks.filter(t => t.completed).length; }
     function updateTasksList() {
         const list = document.getElementById('tasksList'); list.innerHTML = '';
-        if (tasks.length === 0) { list.innerHTML = '<p class="text-sm text-[--muted] text-center py-4">Sin tareas</p>'; return; }
-        const sorted = [...tasks].sort((a, b) => { if (a.completed !== b.completed) return a.completed ? 1 : -1; const p = { critical: 0, high: 1, medium: 2, low: 3 }; return p[a.priority] - p[b.priority]; });
+        if (tasks.length === 0) { list.innerHTML = '<p class="text-sm text-[--muted] text-center py-4">No hay tareas creadas</p>'; return; }
+        const sorted = [...tasks].sort((a, b) => { if (a.completed !== b.completed) return a.completed ? 1 : -1; const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 }; return priorityOrder[a.priority] - priorityOrder[b.priority]; });
         sorted.forEach(task => {
-            const item = document.createElement('div'); item.className = 'flex items-center gap-3 p-3 bg-[--card] rounded-xl border border-[--border] cursor-pointer hover:border-[--border-light]';
+            const item = document.createElement('div'); item.className = 'flex items-center gap-3 p-3 bg-[--card] rounded-xl border border-[--border] cursor-pointer hover:border-[--border-light] transition-all';
             const canToggle = task.completed || canCompleteTask(task); const isLocked = !canToggle && !task.completed;
-            item.innerHTML = `<input type="checkbox" ${task.completed ? 'checked' : ''} class="w-4 h-4 rounded accent-[--accent] ${isLocked ? 'opacity-50' : ''}" ${isLocked ? 'disabled' : ''}><div class="flex-1"><p class="text-sm font-medium ${task.completed ? 'line-through text-[--muted]' : ''}">${escapeHtml(task.name)}</p><span class="mono text-xs text-[--muted]">${task.duration}h</span></div>`;
-            const checkbox = item.querySelector('input'); checkbox.addEventListener('click', (e) => { e.stopPropagation(); if (isLocked) return; toggleComplete(task.id, e); });
+            item.innerHTML = `<input type="checkbox" ${task.completed ? 'checked' : ''} class="w-4 h-4 rounded accent-[--accent] cursor-pointer ${isLocked ? 'opacity-50' : ''}" ${isLocked ? 'disabled' : ''}><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate ${task.completed ? 'line-through text-[--muted]' : ''}">${escapeHtml(task.name)} ${isLocked ? '<span class="text-xs text-[--danger]">(Bloqueada)</span>' : ''}</p><div class="flex items-center gap-2 mt-1"><span class="mono text-xs text-[--muted]">${task.duration}h</span><span class="tag tag-${task.priority}">${task.priority}</span></div></div>`;
+            const checkbox = item.querySelector('input'); checkbox.addEventListener('click', (e) => { e.stopPropagation(); if (isLocked) { showToast('Completa dependencias primero', 'error'); playSound('error'); return; } toggleComplete(task.id, e); });
             item.addEventListener('click', (e) => { if (e.target.type !== 'checkbox') openTaskModal(task.id); }); list.appendChild(item);
         });
     }
-    function toggleComplete(taskId, event) { event.stopPropagation(); const task = tasks.find(t => t.id === taskId); if (!task) return; if (!task.completed && !canCompleteTask(task)) return; task.completed = !task.completed; if(task.completed) { stats.tasksCompleted++; playSound('complete'); } checkAchievements(); saveData(); renderNodes(); }
+    function toggleComplete(taskId, event) { event.stopPropagation(); const task = tasks.find(t => t.id === taskId); if (!task) return; if (!task.completed && !canCompleteTask(task)) { showToast('Completa dependencias primero', 'error'); playSound('error'); return; } task.completed = !task.completed; if(task.completed) { stats.tasksCompleted++; playSound('complete'); } else { playSound('create'); } checkAchievements(); saveData(); renderNodes(); if (currentAnalysis) calculateOptimalRoute(); }
     function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text || ''; return div.innerHTML; }
 
     // ==================== EVENT LISTENERS ====================
-    document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal());
-    document.getElementById('addDependencyBtn').addEventListener('click', addDependencyRow);
-    document.getElementById('deleteTaskBtn').addEventListener('click', deleteTask);
-    document.getElementById('calculateRouteBtn').addEventListener('click', calculateOptimalRoute);
-    document.getElementById('toggleSidebarBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeTaskModal(); endConnection(); closeRoutesModal(); } });
-    document.getElementById('taskModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeTaskModal(); });
-    document.getElementById('routesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeRoutesModal(); });
-    window.addEventListener('resize', resizeCanvas);
+    document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal()); document.getElementById('addDependencyBtn').addEventListener('click', addDependencyRow); document.getElementById('deleteTaskBtn').addEventListener('click', deleteTask); document.getElementById('calculateRouteBtn').addEventListener('click', calculateOptimalRoute); document.getElementById('toggleSidebarBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); }); document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeTaskModal(); endConnection(); closeRoutesModal(); } }); document.getElementById('taskModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeTaskModal(); }); document.getElementById('routesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeRoutesModal(); }); window.addEventListener('resize', resizeCanvas);
 
     // ==================== INIT ====================
     function init() { loadData(); resizeCanvas(); updateWorldTransform(); renderNodes(); setupImageUpload(); const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 14); document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0]; }
