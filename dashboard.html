@@ -418,7 +418,73 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+        // ================= FIREBASE SYNC (PEGAR AL INICIO) =================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0qX8mZbJk90Qlgzq_kPQRJEU60BR4pDo",
+      authDomain: "nexus-f0f5e.firebaseapp.com",
+      databaseURL: "https://nexus-f0f5e-default-rtdb.firebaseio.com",
+      projectId: "nexus-f0f5e",
+      storageBucket: "nexus-f0f5e.firebasestorage.app",
+      messagingSenderId: "937294267521",
+      appId: "1:937294267521:web:e9db3a496f21c829ea7980"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    let currentUser = null;
+    let syncedOnce = false;
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return window.location.href = 'index.html';
+      currentUser = user;
+      
+      // Escuchar datos en la nube
+      onValue(ref(db, `users/${currentUser.uid}/nexusData`), (snap) => {
+        const data = snap.val();
+        if (data) {
+          // Cargar datos de la nube
+          tasks = data.tasks || [];
+          nextId = data.nextId || 1;
+          if(data.viewPos) { worldX = data.viewPos.x; worldY = data.viewPos.y; }
+          if(data.stats) stats = data.stats;
+          if(data.unlockedAchievements) unlockedAchievements = new Set(data.unlockedAchievements);
+          
+          if (syncedOnce) {
+            renderNodes(); 
+            updateWorldTransform();
+          }
+        }
+        syncedOnce = true;
+      });
+    });
+
+    // Sobrescribir saveData para que también guarde en Firebase
+    const originalSaveData = saveData; 
+    saveData = function() {
+      // Guardar local (tu lógica original)
+      originalSaveData(); 
+      
+      // Guardar en la nube
+      if (currentUser && syncedOnce) {
+        set(ref(db, `users/${currentUser.uid}/nexusData`), {
+          tasks, nextId, viewPos: { x: worldX, y: worldY }, stats, unlockedAchievements: Array.from(unlockedAchievements)
+        });
+      }
+    };
+    
+    // Exponer funciones globales si usas onclick en HTML (necesario en modules)
+    window.openTaskModal = openTaskModal;
+    window.closeTaskModal = closeTaskModal;
+    window.saveTask = saveTask;
+    window.endConnection = endConnection;
+    window.closeRoutesModal = closeRoutesModal;
+    // =====================================================================
     // ==================== STATE ====================
     let tasks = [];
     let nextId = 1;
