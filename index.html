@@ -634,8 +634,7 @@
     const ctx = canvas.getContext('2d');
     const nodesContainer = document.getElementById('nodesContainer');
     const gridPattern = document.getElementById('gridPattern');
-
-    // ==================== PERSISTENCE ====================
+        // ==================== PERSISTENCE ====================
     function loadData() {
       const saved = localStorage.getItem('projectNexusDataV6');
       if (saved) {
@@ -644,7 +643,7 @@
         if(data.stats) stats = data.stats; unlockedAchievements = new Set(data.unlockedAchievements || []);
       }
       const today = new Date().toDateString(); if (!stats.activeDays) stats.activeDays = [];
-      if (!stats.activeDays.includes(today)) { stats.activeDays.push(today); saveData(); }
+      if (!stats.activeDays.includes(today)) { stats.activeDays.push(today); /* NO guardar aquí para evitar saltos */ }
     }
     
     function saveData() { 
@@ -943,8 +942,17 @@
     document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal()); document.getElementById('addDependencyBtn').addEventListener('click', addDependencyRow); document.getElementById('deleteTaskBtn').addEventListener('click', deleteTask); document.getElementById('calculateRouteBtn').addEventListener('click', calculateOptimalRoute); document.getElementById('toggleSidebarBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); }); document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeTaskModal(); endConnection(); closeRoutesModal(); } }); document.getElementById('taskModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeTaskModal(); }); document.getElementById('routesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeRoutesModal(); }); window.addEventListener('resize', resizeCanvas);
 
     // ==================== INIT ====================
-    function init() { loadData(); resizeCanvas(); updateWorldTransform(); renderNodes(); setupImageUpload(); const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 14); document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0]; }
-  //  init();
+    // Inicio controlado para evitar saltos de login
+    document.addEventListener('DOMContentLoaded', () => {
+        resizeCanvas(); 
+        setupImageUpload(); 
+        const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 14); document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0];
+        // init() se llama aquí, pero loadData NO guarda automáticamente.
+        // AuthStateChange se encargará de todo.
+        init(); 
+    });
+
+    function init() { loadData(); updateWorldTransform(); renderNodes(); }
   </script>
 </body>
 </html>
