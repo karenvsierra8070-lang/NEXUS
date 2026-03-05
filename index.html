@@ -46,17 +46,20 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // 1. Si ya está logueado, ir directo al dashboard
+    // 1. Verificar si ya está logueado para redirigir
     onAuthStateChanged(auth, (user) => {
-      if (user) window.location.href = 'dashboard.html';
+      if (user) {
+        window.location.href = 'dashboard.html';
+      }
     });
 
     // 2. Botón de login
     document.getElementById('loginBtn').addEventListener('click', async () => {
       try {
         await signInWithPopup(auth, provider);
-        // El evento de arriba detectará el usuario y redirigirá
+        // onAuthStateChanged se encargará de la redirección
       } catch (e) {
+        console.error(e);
         document.getElementById('error').classList.remove('hidden');
       }
     });
