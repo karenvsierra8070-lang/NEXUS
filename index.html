@@ -6,12 +6,11 @@
   <title>Project Nexus - Optimizado</title>
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- AGREGAR ESTO -->
+  <!-- FIREBASE SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   
-  <link rel="preconnect"...
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -180,6 +179,10 @@
     .btn-danger { background: rgba(255, 92, 92, 0.1); color: var(--danger); border: 1px solid rgba(255, 92, 92, 0.3); }
     .btn-danger:hover { background: rgba(255, 92, 92, 0.2); border-color: var(--danger); }
 
+    /* ESTILOS LOGIN AGREGADOS */
+    .btn-google { background: #fff; color: #757575; border: 1px solid #ddd; }
+    .btn-google:hover { background: #f8f8f8; }
+
     .sidebar { background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg) 100%); border-left: 1px solid var(--border); }
     .stat-card { background: linear-gradient(135deg, var(--card) 0%, rgba(18, 21, 28, 0.8) 100%); border: 1px solid var(--border); border-radius: 14px; padding: 16px; position: relative; overflow: hidden; }
     .stat-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.5; }
@@ -208,10 +211,6 @@
     .tag-medium { background: rgba(92, 158, 255, 0.15); color: var(--info); }
     .tag-low { background: rgba(107, 117, 136, 0.15); color: var(--muted); }
 
-        /* AGREGAR ESTO AL FINAL DE <style> */
-    .btn-google { background: #fff; color: #757575; border: 1px solid #ddd; }
-    .btn-google:hover { background: #f8f8f8; }
-
     /* Toast */
     #toastContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
     .toast { padding: 14px 20px; border-radius: 10px; background: var(--card); border: 1px solid var(--accent); color: var(--fg); box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: 10px; font-size: 14px; }
@@ -233,8 +232,7 @@
 <body>
   <div class="bg-atmosphere"></div>
 
-
-  <!-- AGREGAR ESTO -->
+  <!-- LOGIN MODAL AGREGADO -->
   <div id="loginModal" class="modal-overlay active">
     <div class="modal-content p-8 text-center" style="max-width: 400px;">
         <h2 class="text-2xl font-bold mb-2">Project Nexus</h2>
@@ -275,7 +273,8 @@
         </div>
         <div>
           <h1 class="text-xl font-bold tracking-tight">Project Nexus</h1>
-       <p class="text-xs text-[--muted] tracking-wide" id="userStatusText">Espacio de Trabajo Infinito</p>        </div>
+          <p class="text-xs text-[--muted] tracking-wide" id="userStatusText">Espacio de Trabajo Infinito</p>
+        </div>
       </div>
       <div class="flex items-center gap-3">
         <!-- BOTONES NAVEGACION -->
@@ -304,6 +303,10 @@
         <button id="addTaskBtn" class="btn btn-primary">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span class="hidden sm:inline">Nueva Tarea</span>
+        </button>
+        <!-- BOTON LOGOUT AGREGADO -->
+        <button onclick="logoutUser()" class="btn btn-danger p-2 hidden" id="logoutBtn" title="Cerrar sesión">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         </button>
       </div>
     </div>
@@ -421,10 +424,6 @@
           <button onclick="closeTaskModal()" class="w-9 h-9 rounded-xl bg-[--bg] flex items-center justify-center hover:bg-[--card-hover] transition-colors border border-[--border]">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
-
-               <button onclick="logoutUser()" class="btn btn-danger p-2 hidden" id="logoutBtn" title="Cerrar sesión">
-         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-     </button>
         </div>
       </div>
       <div class="p-6 space-y-5">
@@ -461,8 +460,9 @@
       </div>
     </div>
   </div>
+
   <script>
-        // ==================== FIREBASE CONFIG ====================
+    // ==================== FIREBASE CONFIG (AGREGADO) ====================
     const firebaseConfig = {
         apiKey: "AIzaSyA0qX8mZbJk90Qlgzq_kPQRJEU60BR4pDo",
         authDomain: "nexus-f0f5e.firebaseapp.com",
@@ -470,17 +470,16 @@
         projectId: "nexus-f0f5e",
         storageBucket: "nexus-f0f5e.firebasestorage.app",
         messagingSenderId: "937294267521",
-        appId: "1:937294267521:web:e9db3a496f21c829ea7980",
-        measurementId: "G-HMTLX3LYRW"
+        appId: "1:937294267521:web:e9db3a496f21c829ea7980"
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
     const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-    // ==================== AUTH LOGIC ====================
-    let currentUser = null;
+    let currentUser = null; // (AGREGADO)
 
+    // ==================== AUTH LOGIC (AGREGADO) ====================
     auth.onAuthStateChanged(user => {
         if (user) {
             currentUser = user;
@@ -517,8 +516,6 @@
 
     function logoutUser() { auth.signOut(); }
 
-    // ==================== STATE ====================
-    // (Tu código original de STATE empieza aquí...)
     // ==================== STATE ====================
     let tasks = [];
     let nextId = 1;
@@ -634,7 +631,8 @@
     const ctx = canvas.getContext('2d');
     const nodesContainer = document.getElementById('nodesContainer');
     const gridPattern = document.getElementById('gridPattern');
-        // ==================== PERSISTENCE ====================
+
+    // ==================== PERSISTENCE ====================
     function loadData() {
       const saved = localStorage.getItem('projectNexusDataV6');
       if (saved) {
@@ -643,13 +641,11 @@
         if(data.stats) stats = data.stats; unlockedAchievements = new Set(data.unlockedAchievements || []);
       }
       const today = new Date().toDateString(); if (!stats.activeDays) stats.activeDays = [];
-      if (!stats.activeDays.includes(today)) { stats.activeDays.push(today); /* NO guardar aquí para evitar saltos */ }
+      if (!stats.activeDays.includes(today)) { stats.activeDays.push(today); saveData(); }
     }
-    
+    // MODIFICADO: saveData ahora guarda en Firebase si hay usuario
     function saveData() { 
       localStorage.setItem('projectNexusDataV6', JSON.stringify({ tasks, nextId, viewPos: { x: worldX, y: worldY }, stats, unlockedAchievements: Array.from(unlockedAchievements) }));
-      
-      // Guardado en Firebase
       if(currentUser) {
         const tasksObj = {};
         tasks.forEach(t => tasksObj[t.id] = t);
@@ -663,6 +659,7 @@
       }
     }
 
+    // AGREGADO: initApp para cargar datos remotos
     function initApp() {
       loadData(); 
       db.ref('users/' + currentUser.uid).on('value', snapshot => {
@@ -677,7 +674,8 @@
          }
       });
     }
-    // ==================== WORLD RENDERING (ORIGINAL SIN CAMBIOS) ====================
+
+    // ==================== WORLD RENDERING ====================
     function updateWorldTransform() { world.style.transform = `translate(${-worldX}px, ${-worldY}px)`; gridPattern.style.transform = `translate(${worldX % 50}px, ${worldY % 50}px)`; drawConnections(); }
     function resizeCanvas() { canvas.width = viewport.offsetWidth; canvas.height = viewport.offsetHeight; drawConnections(); }
 
@@ -692,24 +690,19 @@
                 if (fromNode && toNode) {
                     const fromLeft = parseInt(fromNode.style.left); const fromTop = parseInt(fromNode.style.top);
                     const toLeft = parseInt(toNode.style.left); const toTop = parseInt(toNode.style.top);
-                    // LOGICA ORIGINAL INTACTA
                     const fromX = (fromLeft - worldX) + fromNode.offsetWidth; 
                     const fromY = (fromTop - worldY) + fromNode.offsetHeight / 2;
                     const toX = toLeft - worldX; 
                     const toY = toTop - worldY + toNode.offsetHeight / 2;
-
                     const isInActiveRoute = activeRouteTaskIds.has(task.id) && activeRouteTaskIds.has(depId);
                     const isInRecommended = currentAnalysis && currentAnalysis.recommended && currentAnalysis.recommended.tasks.some(t => t.id === task.id) && currentAnalysis.recommended.tasks.some(t => t.id === depId);
-
                     ctx.beginPath(); ctx.moveTo(fromX, fromY);
                     const midX = (fromX + toX) / 2;
                     ctx.bezierCurveTo(midX + 30, fromY, midX - 30, toY, toX, toY);
-
                     if (isInActiveRoute) { ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 3; ctx.shadowColor = 'rgba(168, 85, 247, 0.5)'; ctx.shadowBlur = 8; }
                     else if (isInRecommended) { ctx.strokeStyle = '#00e5a0'; ctx.lineWidth = 3; ctx.shadowColor = 'rgba(0, 229, 160, 0.5)'; ctx.shadowBlur = 8; }
                     else { ctx.strokeStyle = task.isCritical ? '#f5a623' : '#3a4150'; ctx.lineWidth = task.isCritical ? 2.5 : 2; ctx.shadowBlur = 0; }
                     ctx.stroke(); ctx.shadowBlur = 0;
-
                     const angle = Math.atan2(toY - fromY, toX - midX);
                     ctx.beginPath(); ctx.moveTo(toX, toY);
                     ctx.lineTo(toX - 10 * Math.cos(angle - Math.PI / 6), toY - 10 * Math.sin(angle - Math.PI / 6));
@@ -770,7 +763,7 @@
     function setupImageUpload() { const dropZone = document.getElementById('imageDropZone'); const input = document.getElementById('taskImage'); const removeBtn = document.getElementById('removeImageBtn'); dropZone.addEventListener('click', () => input.click()); dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-[--accent]'); }); dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[--accent]')); dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('border-[--accent]'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) handleImageFile(file); }); input.addEventListener('change', (e) => { if (e.target.files[0]) handleImageFile(e.target.files[0]); }); removeBtn.addEventListener('click', () => { imageData = null; input.value = ''; document.getElementById('imagePlaceholder').classList.remove('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); }); }
     function handleImageFile(file) { const reader = new FileReader(); reader.onload = (e) => { imageData = e.target.result; document.getElementById('imagePreview').src = imageData; document.getElementById('imagePlaceholder').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.remove('hidden'); }; reader.readAsDataURL(file); }
 
-    // ==================== ROUTE OPTIMIZATION (CORREGIDO) ====================
+    // ==================== ROUTE OPTIMIZATION ====================
     function calculateOptimalRoute() {
         const deadline = document.getElementById('deadlineInput').value; const hoursPerDay = parseFloat(document.getElementById('hoursPerDay').value) || 5; if (!deadline) { showToast('Selecciona una fecha limite.', 'error'); playSound('error'); return; }
         stats.routeCalculations++; checkAchievements();
@@ -779,9 +772,7 @@
         const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
         const availableHours = daysRemaining * hoursPerDay;
         document.getElementById('availableHours').textContent = availableHours; tasks.forEach(t => t.isCritical = false);
-        
         const routes = findAllRoutesFixed();
-        
         allCalculatedRoutes = routes.map(route => {
             let timeAccum = 0;
             const tasksWithTimes = [];
@@ -803,44 +794,25 @@
                 progress: tasksWithTimes.length > 0 ? (completedCount / tasksWithTimes.length) * 100 : 0 
             };
         }).filter(r => r.tasks.length > 0);
-
-        // Sort: Most tasks first, then shortest time
-        allCalculatedRoutes.sort((a, b) => {
-           if (b.taskCount !== a.taskCount) return b.taskCount - a.taskCount;
-           return a.totalDuration - b.totalDuration;
-        });
-
-        // Mark Critical (Longest duration)
+        allCalculatedRoutes.sort((a, b) => { if (b.taskCount !== a.taskCount) return b.taskCount - a.taskCount; return a.totalDuration - b.totalDuration; });
         if (allCalculatedRoutes.length > 0) {
             const longestDuration = Math.max(...allCalculatedRoutes.map(r => r.totalDuration));
-            allCalculatedRoutes.forEach(route => {
-                if (route.totalDuration === longestDuration) {
-                    route.tasks.forEach(t => {
-                        const task = tasks.find(task => task.id === t.id);
-                        if (task) task.isCritical = true;
-                    });
-                }
-            });
+            allCalculatedRoutes.forEach(route => { if (route.totalDuration === longestDuration) { route.tasks.forEach(t => { const task = tasks.find(task => task.id === t.id); if (task) task.isCritical = true; }); } });
         }
-
         const criticalDuration = tasks.filter(t => t.isCritical).reduce((sum, t) => sum + t.duration, 0);
         document.getElementById('criticalPath').textContent = criticalDuration.toFixed(1);
-
         currentAnalysis = { recommended: allCalculatedRoutes[0] || null, alternatives: allCalculatedRoutes.slice(1, 4), availableHours, hoursPerDay, daysRemaining };
         saveData(); renderNodes(); displayAnalysis(currentAnalysis);
         if(document.getElementById('routesModal').classList.contains('active')) displayRoutesModal();
     }
-
     function topologicalSort(routeTasks) {
         const sorted = []; const visited = new Set(); const visiting = new Set();
         const taskMap = new Map(routeTasks.map(t => [t.id, t]));
         function visit(task) {
             if (visited.has(task.id)) return;
-            if (visiting.has(task.id)) return; // Cycle
+            if (visiting.has(task.id)) return;
             visiting.add(task.id);
-            task.dependencies.forEach(depId => {
-                if (taskMap.has(depId)) visit(taskMap.get(depId));
-            });
+            task.dependencies.forEach(depId => { if (taskMap.has(depId)) visit(taskMap.get(depId)); });
             visiting.delete(task.id);
             visited.add(task.id);
             sorted.push(task);
@@ -848,49 +820,18 @@
         routeTasks.forEach(t => visit(t));
         return sorted;
     }
-
-    // CORREGIDO: Find ALL routes properly
     function findAllRoutesFixed() {
         const allRoutes = [];
-        
-        // Helper: DFS
         function dfs(currentTask, currentPath, visitedIds) {
             visitedIds.add(currentTask.id);
             currentPath.push(currentTask);
-
-            // Find children (dependents) that are not completed and not visited
-            const children = tasks.filter(t => 
-                !t.completed && 
-                !visitedIds.has(t.id) && 
-                t.dependencies.includes(currentTask.id)
-            );
-
-            if (children.length === 0) {
-                // End of path (leaf node)
-                allRoutes.push([...currentPath]);
-            } else {
-                // Continue path for each child
-                children.forEach(child => {
-                    dfs(child, [...currentPath], new Set(visitedIds));
-                });
-            }
+            const children = tasks.filter(t => !t.completed && !visitedIds.has(t.id) && t.dependencies.includes(currentTask.id));
+            if (children.length === 0) { allRoutes.push([...currentPath]); } else { children.forEach(child => { dfs(child, [...currentPath], new Set(visitedIds)); }); }
         }
-
-        // Find start nodes (roots): Not completed, and (No deps OR at least one dep completed)
-        const startNodes = tasks.filter(t => 
-            !t.completed && 
-            (t.dependencies.length === 0 || t.dependencies.some(d => tasks.find(x => x.id === d)?.completed))
-        );
-
-        // Start DFS from each start node
-        startNodes.forEach(start => {
-            dfs(start, [], new Set());
-        });
-
-        // Convert arrays of objects to arrays of task objects (already are)
+        const startNodes = tasks.filter(t => !t.completed && (t.dependencies.length === 0 || t.dependencies.some(d => tasks.find(x => x.id === d)?.completed)));
+        startNodes.forEach(start => { dfs(start, [], new Set()); });
         return allRoutes;
     }
-
     function displayAnalysis(analysis) {
         const section = document.getElementById('analysisSection'); const content = document.getElementById('analysisContent'); section.classList.remove('hidden');
         if (!analysis.recommended || analysis.recommended.tasks.length === 0) { content.innerHTML = `<div class="p-4 bg-[--card] rounded-xl border border-[--border] text-center"><p class="text-[--muted]">No hay rutas posibles.</p></div>`; return; }
@@ -942,17 +883,12 @@
     document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal()); document.getElementById('addDependencyBtn').addEventListener('click', addDependencyRow); document.getElementById('deleteTaskBtn').addEventListener('click', deleteTask); document.getElementById('calculateRouteBtn').addEventListener('click', calculateOptimalRoute); document.getElementById('toggleSidebarBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); }); document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeTaskModal(); endConnection(); closeRoutesModal(); } }); document.getElementById('taskModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeTaskModal(); }); document.getElementById('routesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeRoutesModal(); }); window.addEventListener('resize', resizeCanvas);
 
     // ==================== INIT ====================
-    // Inicio controlado para evitar saltos de login
-    document.addEventListener('DOMContentLoaded', () => {
-        resizeCanvas(); 
-        setupImageUpload(); 
-        const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 14); document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0];
-        // init() se llama aquí, pero loadData NO guarda automáticamente.
-        // AuthStateChange se encargará de todo.
+    function init() { loadData(); resizeCanvas(); updateWorldTransform(); renderNodes(); setupImageUpload(); const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 14); document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0]; }
+    // CAMBIADO: init solo se llama si NO hay usuario al principio. Si hay usuario, initApp() maneja todo.
+    // Esto previene el "salto" del login.
+    if(!currentUser) {
         init(); 
-    });
-
-    function init() { loadData(); updateWorldTransform(); renderNodes(); }
+    }
   </script>
 </body>
 </html>
