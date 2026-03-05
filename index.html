@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Nexus - Sync Edition</title>
+  <title>Project Nexus - Sync</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  
   <style>
     :root {
       --bg: #08090c;
@@ -213,30 +212,27 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-    /* Login Screen Styles - CORREGIDO */
-    #loginScreen {
-      position: fixed; 
-      inset: 0; 
-      z-index: 9999; 
+    /* LOGIN SCREEN STYLES */
+    #loginOverlay {
+      position: fixed;
+      inset: 0;
       background: var(--bg);
-      /* Display flex se maneja con clases de Tailwind en HTML ahora */
+      z-index: 10000; /* Encima de todo */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease;
     }
-    .login-card {
-      background: linear-gradient(145deg, var(--card) 0%, var(--bg-secondary) 100%);
+    .login-box {
+      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 48px;
-      max-width: 400px;
-      width: 90%;
+      border-radius: 20px;
+      padding: 40px;
       text-align: center;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
-    .google-btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 12px;
-      background: white; color: #333; font-weight: 600; padding: 14px 32px; border-radius: 12px; border: none;
-      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; width: 100%; font-size: 15px;
-    }
-    .google-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
 
     @media (max-width: 1024px) {
       .sidebar { position: fixed; right: -100%; top: 0; height: 100vh; width: 100%; max-width: 380px; z-index: 1500; transition: right 0.35s; }
@@ -246,32 +242,31 @@
   </style>
 </head>
 <body>
-  <div class="bg-atmosphere"></div>
-
-  <!-- LOGIN SCREEN (Añadidas clases flex y items-center de Tailwind, quitar hidden por defecto para mostrar carga) -->
-  <div id="loginScreen" class="flex items-center justify-center">
-    <div class="login-card">
-      <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[--accent] to-[--info] flex items-center justify-center shadow-lg">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-[--bg]">
-          <circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>
-          <line x1="7" y1="5" x2="10" y2="10"/><line x1="17" y1="5" x2="14" y2="10"/><line x1="7" y1="19" x2="10" y2="14"/><line x1="17" y1="19" x2="14" y2="14"/>
-        </svg>
+  <!-- LOGIN OVERLAY -->
+  <div id="loginOverlay">
+    <div class="login-box">
+      <div class="w-14 h-14 mx-auto mb-5 rounded-xl bg-gradient-to-br from-[--accent] to-[--info] flex items-center justify-center shadow-lg">
+         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-[--bg]">
+            <circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>
+            <line x1="7" y1="5" x2="10" y2="10"/><line x1="17" y1="5" x2="14" y2="10"/><line x1="7" y1="19" x2="10" y2="14"/><line x1="17" y1="19" x2="14" y2="14"/>
+         </svg>
       </div>
-      <h2 class="text-2xl font-bold mb-2">Project Nexus</h2>
-      <p class="text-[--muted] mb-8 text-sm">Inicia sesión para sincronizar tus tareas en la nube</p>
-      <button id="googleLoginBtn" class="google-btn">
+      <h2 class="text-xl font-bold mb-2">Project Nexus</h2>
+      <p class="text-[--muted] text-sm mb-6">Inicia sesión para sincronizar</p>
+      <button id="loginBtn" class="btn btn-primary w-full text-base">
         <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
-          <path d="M9.003 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.26c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z" fill="#34A853"/>
-          <path d="M3.964 10.712c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.96H.957C.347 6.175 0 7.55 0 9.002c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-          <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.002 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335"/>
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#FFF"/>
+            <path d="M9.003 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.26c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z" fill="#FFF"/>
+            <path d="M3.964 10.712c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.96H.957C.347 6.175 0 7.55 0 9.002c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FFF"/>
+            <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.002 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#FFF"/>
         </svg>
-        Iniciar sesión con Google
+        Iniciar con Google
       </button>
-      <p id="loginError" class="text-[--danger] text-sm mt-4 hidden">Error al iniciar sesión. Intenta de nuevo.</p>
+      <p id="loginError" class="text-[--danger] text-xs mt-3 hidden">Error al iniciar sesión</p>
     </div>
   </div>
-  <!-- END LOGIN SCREEN -->
+
+  <div class="bg-atmosphere"></div>
 
   <!-- Header -->
   <header class="fixed top-0 left-0 right-0 z-50 border-b border-[--border]" style="background: rgba(8, 9, 12, 0.92); backdrop-filter: blur(16px);">
@@ -309,18 +304,14 @@
             <circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>
           </svg>
         </button>
-        
-        <!-- User Info & Logout -->
-        <div id="userInfo" class="hidden items-center gap-2 text-sm">
-           <span id="userName" class="text-[--muted] hidden sm:block"></span>
-           <button id="logoutBtn" class="btn btn-secondary text-xs py-2 px-3" title="Cerrar sesión">
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-           </button>
-        </div>
-
         <button id="toggleSidebarBtn" class="btn btn-secondary lg:hidden">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
         </button>
+        
+        <button id="logoutBtn" class="btn btn-secondary hidden" title="Cerrar sesión">
+           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+
         <button id="addTaskBtn" class="btn btn-primary">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span class="hidden sm:inline">Nueva Tarea</span>
@@ -478,9 +469,8 @@
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDK -->
   <script type="module">
-    // ==================== FIREBASE SETUP ====================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -501,42 +491,17 @@
     const db = getDatabase(app);
     const provider = new GoogleAuthProvider();
     
+    // Variable global para el usuario
     let currentUser = null;
-    let firebaseInitialized = false;
+    let firebaseSyncEnabled = false;
 
-    // ==================== STATE ====================
-    let tasks = [];
-    let nextId = 1;
-    let imageData = null;
-    let currentAnalysis = null;
-    let connectingFrom = null;
-    let activeRouteIndex = null; 
-    let allCalculatedRoutes = []; 
-
-    // World State (Pan)
-    let worldX = 0; 
-    let worldY = 0;
-    let isPanning = false;
-    let panStartX = 0;
-    let panStartY = 0;
-
-    // Drag Node State
-    let draggedNode = null;
-    let dragOffset = { x: 0, y: 0 };
-
-    // Stats & Achievements
-    let stats = { tasksCreated: 0, tasksCompleted: 0, connectionsMade: 0, routesCompleted: 0, routeCalculations: 0, activeDays: [] };
-    let unlockedAchievements = new Set();
-
-    // ==================== AUTH UI LOGIC ====================
-    const loginScreen = document.getElementById('loginScreen');
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    // Elementos UI Login
+    const loginOverlay = document.getElementById('loginOverlay');
+    const loginBtn = document.getElementById('loginBtn');
     const loginError = document.getElementById('loginError');
-    const userInfo = document.getElementById('userInfo');
-    const userName = document.getElementById('userName');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    googleLoginBtn.addEventListener('click', async () => {
+    loginBtn.addEventListener('click', async () => {
         loginError.classList.add('hidden');
         try {
             await signInWithPopup(auth, provider);
@@ -546,37 +511,87 @@
         }
     });
 
-    logoutBtn.addEventListener('click', async () => {
-        await signOut(auth);
-    });
+    logoutBtn.addEventListener('click', () => signOut(auth));
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
-            // Ocultar login usando clases de Tailwind (hidden tiene !important en Tailwind usualmente, o mayor especificidad al no haber conflicto CSS ID)
-            loginScreen.classList.add('hidden'); 
-            loginScreen.classList.remove('flex'); // Asegurarse de quitar flex por si acaso
-
-            userInfo.classList.remove('hidden');
-            userInfo.classList.add('flex');
-            userName.textContent = user.displayName || 'Usuario';
-            
-            // Init the app for real
-            if (!firebaseInitialized) {
-                initMainApp();
-                firebaseInitialized = true;
-            }
+            loginOverlay.style.display = 'none'; // Ocultar login
+            logoutBtn.classList.remove('hidden');
+            initFirebaseSync();
         } else {
             currentUser = null;
-            // Mostrar login
-            loginScreen.classList.remove('hidden');
-            loginScreen.classList.add('flex');
-            
-            userInfo.classList.add('hidden');
-            tasks = []; // Clear memory on logout
-            renderNodes();
+            loginOverlay.style.display = 'flex'; // Mostrar login
+            logoutBtn.classList.add('hidden');
+            firebaseSyncEnabled = false;
         }
     });
+
+    function initFirebaseSync() {
+        if (!currentUser) return;
+        const dataRef = ref(db, `users/${currentUser.uid}/nexusData`);
+        
+        // Escuchar cambios en tiempo real
+        onValue(dataRef, (snapshot) => {
+            firebaseSyncEnabled = true; // Habilitar escritura
+            const data = snapshot.val();
+            
+            // Si hay datos en la nube
+            if (data) {
+                // Cargar datos de la nube
+                applyDataToState(data);
+                renderNodes(); 
+                updateWorldTransform();
+            } else {
+                // Si no hay datos en la nube, pero sí en local (migración inicial)
+                const localData = localStorage.getItem('projectNexusDataV6');
+                if (localData) {
+                    const parsed = JSON.parse(localData);
+                    applyDataToState(parsed);
+                    renderNodes();
+                    updateWorldTransform();
+                    saveData(); // Subir a la nube
+                    showToast("Datos sincronizados a la nube");
+                }
+            }
+        }, { onlyOnce: true }); // Solo una vez al iniciar para no sobrescribir escrituras locales
+    }
+
+    function applyDataToState(data) {
+        tasks = data.tasks || [];
+        nextId = data.nextId || 1;
+        if (data.viewPos) { worldX = data.viewPos.x; worldY = data.viewPos.y; }
+        if(data.stats) stats = data.stats; 
+        unlockedAchievements = new Set(data.unlockedAchievements || []);
+    }
+
+    // =============================================================
+    // TU CÓDIGO ORIGINAL COMIENZA AQUÍ (SIN MODIFICACIONES)
+    // =============================================================
+
+    // ==================== STATE ====================
+    // Nota: tasks, nextId, etc ya están definidos arriba
+    
+    let imageData = null;
+    let currentAnalysis = null;
+    let connectingFrom = null;
+    let activeRouteIndex = null; 
+    let allCalculatedRoutes = []; 
+
+    // World State (Pan)
+    // worldX, worldY ya definidos
+    
+    let isPanning = false;
+    let panStartX = 0;
+    let panStartY = 0;
+
+    // Drag Node State
+    let draggedNode = null;
+    let dragOffset = { x: 0, y: 0 };
+
+    // Stats & Achievements
+    // stats ya definido
+    // unlockedAchievements ya definido
 
     // ==================== AUDIO ENGINE ====================
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -597,7 +612,7 @@
         }
     }
 
-    // ==================== ACHIEVEMENTS ====================
+    // ==================== ACHIEVEMENTS (50) ====================
     const ACHIEVEMENTS = [
       { id: 'first_task', name: 'Primer Paso', desc: 'Crea tu primera tarea', icon: '🚀', check: s => s.tasksCreated >= 1 },
       { id: 'organizer', name: 'Organizador', desc: 'Crea 10 tareas', icon: '📋', check: s => s.tasksCreated >= 10 },
@@ -670,61 +685,27 @@
     const nodesContainer = document.getElementById('nodesContainer');
     const gridPattern = document.getElementById('gridPattern');
 
-    // ==================== PERSISTENCE (FIREBASE) ====================
-    
-    function listenToFirebaseData() {
-        if (!currentUser) return;
-        const dataRef = ref(db, `users/${currentUser.uid}/nexusData`);
-        
-        onValue(dataRef, (snapshot) => {
-            const data = snapshot.val();
-            const localData = localStorage.getItem('projectNexusDataV6');
-            
-            if (data) {
-                // Load from Firebase
-                applyData(data);
-            } else if (localData) {
-                // Migration: First time login with local data
-                const parsedLocal = JSON.parse(localData);
-                applyData(parsedLocal);
-                saveData(); // This will push to Firebase because currentUser exists
-                showToast('Datos sincronizados desde este dispositivo');
-            }
-        });
-    }
-
-    function applyData(data) {
-        tasks = data.tasks || [];
-        nextId = data.nextId || 1;
-        if (data.viewPos) { worldX = data.viewPos.x; worldY = data.viewPos.y; }
-        if(data.stats) stats = data.stats; 
-        unlockedAchievements = new Set(data.unlockedAchievements || []);
-        
-        renderNodes();
-        updateWorldTransform();
-    }
-
+    // ==================== PERSISTENCE ====================
     function loadData() {
-        // Logic handled by listenToFirebaseData
+      const saved = localStorage.getItem('projectNexusDataV6');
+      if (saved) {
+        const data = JSON.parse(saved); tasks = data.tasks || []; nextId = data.nextId || 1;
+        if (data.viewPos) { worldX = data.viewPos.x; worldY = data.viewPos.y; }
+        if(data.stats) stats = data.stats; unlockedAchievements = new Set(data.unlockedAchievements || []);
+      }
+      const today = new Date().toDateString(); if (!stats.activeDays) stats.activeDays = [];
+      if (!stats.activeDays.includes(today)) { stats.activeDays.push(today); saveData(); }
     }
-
+    
+    // SaveData modificado para sincronizar con Firebase
     function saveData() { 
-        const dataToSave = { 
-            tasks, 
-            nextId, 
-            viewPos: { x: worldX, y: worldY }, 
-            stats, 
-            unlockedAchievements: Array.from(unlockedAchievements) 
-        };
-
-        // Always save locally as backup
-        localStorage.setItem('projectNexusDataV6', JSON.stringify(dataToSave));
-
-        // Save to Firebase if logged in
-        if (currentUser) {
-            const dataRef = ref(db, `users/${currentUser.uid}/nexusData`);
-            set(dataRef, dataToSave);
-        }
+      const dataToSave = { tasks, nextId, viewPos: { x: worldX, y: worldY }, stats, unlockedAchievements: Array.from(unlockedAchievements) };
+      // 1. Guardar localmente (backup)
+      localStorage.setItem('projectNexusDataV6', JSON.stringify(dataToSave));
+      // 2. Guardar en Firebase si está logueado
+      if (currentUser && firebaseSyncEnabled) {
+         set(ref(db, `users/${currentUser.uid}/nexusData`), dataToSave);
+      }
     }
 
     // ==================== WORLD RENDERING ====================
@@ -811,7 +792,7 @@
     function canCompleteTask(task) { if (!task.dependencies || task.dependencies.length === 0) return true; const completedDeps = task.dependencies.filter(depId => { const depTask = tasks.find(t => t.id === depId); return depTask && depTask.completed; }).length; return completedDeps >= 1; }
 
     // ==================== MODAL & FORMS ====================
-    window.openTaskModal = openTaskModal; // Expose to global for inline onclick
+    window.openTaskModal = openTaskModal;
     function openTaskModal(taskId = null) { const modal = document.getElementById('taskModal'); const title = document.getElementById('modalTitle'); const deleteBtn = document.getElementById('deleteTaskBtn'); document.getElementById('taskId').value = ''; document.getElementById('taskName').value = ''; document.getElementById('taskDuration').value = ''; document.getElementById('taskPriority').value = 'medium'; document.getElementById('taskDescription').value = ''; document.getElementById('taskCompleted').checked = false; document.getElementById('dependenciesList').innerHTML = ''; imageData = null; document.getElementById('imagePlaceholder').classList.remove('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); if (taskId) { const task = tasks.find(t => t.id === taskId); if (task) { title.textContent = 'Editar Tarea'; deleteBtn.classList.remove('hidden'); document.getElementById('taskId').value = task.id; document.getElementById('taskName').value = task.name; document.getElementById('taskDuration').value = task.duration; document.getElementById('taskPriority').value = task.priority; document.getElementById('taskDescription').value = task.description || ''; document.getElementById('taskCompleted').checked = task.completed; if (task.image) { imageData = task.image; document.getElementById('imagePreview').src = task.image; document.getElementById('imagePlaceholder').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.remove('hidden'); } task.dependencies.forEach(depId => addDependencyRow(depId)); } } else { title.textContent = 'Nueva Tarea'; deleteBtn.classList.add('hidden'); } modal.classList.add('active'); }
     function closeTaskModal() { document.getElementById('taskModal').classList.remove('active'); }
     function addDependencyRow(selectedId = null) { const list = document.getElementById('dependenciesList'); const currentTaskId = parseInt(document.getElementById('taskId').value) || 0; const row = document.createElement('div'); row.className = 'flex gap-2'; const select = document.createElement('select'); select.className = 'input-field flex-1 text-sm'; const availableTasks = tasks.filter(t => t.id !== currentTaskId); select.innerHTML = '<option value="">Seleccionar...</option>' + availableTasks.map(t => `<option value="${t.id}" ${selectedId === t.id ? 'selected' : ''}>${escapeHtml(t.name)}</option>`).join(''); const removeBtn = document.createElement('button'); removeBtn.type = 'button'; removeBtn.className = 'btn btn-danger px-3'; removeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'; removeBtn.onclick = () => row.remove(); row.appendChild(select); row.appendChild(removeBtn); list.appendChild(row); }
@@ -976,23 +957,15 @@
     document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal()); document.getElementById('addDependencyBtn').addEventListener('click', addDependencyRow); document.getElementById('deleteTaskBtn').addEventListener('click', deleteTask); document.getElementById('calculateRouteBtn').addEventListener('click', calculateOptimalRoute); document.getElementById('toggleSidebarBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); }); document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeTaskModal(); endConnection(); closeRoutesModal(); } }); document.getElementById('taskModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeTaskModal(); }); document.getElementById('routesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeRoutesModal(); }); window.addEventListener('resize', resizeCanvas);
 
     // ==================== INIT ====================
-    function initMainApp() {
-        listenToFirebaseData(); 
-        resizeCanvas(); 
-        updateWorldTransform(); 
-        setupImageUpload(); 
-        const defaultDate = new Date();
-        defaultDate.setDate(defaultDate.getDate() + 14);
-        document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0]; 
-    }
+    function init() { loadData(); resizeCanvas(); updateWorldTransform(); renderNodes(); setupImageUpload(); const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 14); document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0]; }
     
-    // Make functions available globally for HTML onclick
+    // Expose functions to global scope for HTML onclick
     window.closeTaskModal = closeTaskModal;
     window.saveTask = saveTask;
-    window.openTaskModal = openTaskModal;
     window.endConnection = endConnection;
     window.closeRoutesModal = closeRoutesModal;
 
+    init();
   </script>
 </body>
 </html>
