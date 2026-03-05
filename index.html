@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
-  <!-- Estilos CSS (Sin cambios funcionales, solo añadido estilo para login) -->
   <style>
     :root {
       --bg: #08090c;
@@ -214,10 +213,13 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-    /* Login Screen Styles */
+    /* Login Screen Styles - CORREGIDO */
     #loginScreen {
-      position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
+      position: fixed; 
+      inset: 0; 
+      z-index: 9999; 
       background: var(--bg);
+      /* Display flex se maneja con clases de Tailwind en HTML ahora */
     }
     .login-card {
       background: linear-gradient(145deg, var(--card) 0%, var(--bg-secondary) 100%);
@@ -246,8 +248,8 @@
 <body>
   <div class="bg-atmosphere"></div>
 
-  <!-- LOGIN SCREEN -->
-  <div id="loginScreen" class="hidden">
+  <!-- LOGIN SCREEN (Añadidas clases flex y items-center de Tailwind, quitar hidden por defecto para mostrar carga) -->
+  <div id="loginScreen" class="flex items-center justify-center">
     <div class="login-card">
       <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[--accent] to-[--info] flex items-center justify-center shadow-lg">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-[--bg]">
@@ -551,7 +553,10 @@
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
-            loginScreen.classList.add('hidden');
+            // Ocultar login usando clases de Tailwind (hidden tiene !important en Tailwind usualmente, o mayor especificidad al no haber conflicto CSS ID)
+            loginScreen.classList.add('hidden'); 
+            loginScreen.classList.remove('flex'); // Asegurarse de quitar flex por si acaso
+
             userInfo.classList.remove('hidden');
             userInfo.classList.add('flex');
             userName.textContent = user.displayName || 'Usuario';
@@ -563,7 +568,10 @@
             }
         } else {
             currentUser = null;
+            // Mostrar login
             loginScreen.classList.remove('hidden');
+            loginScreen.classList.add('flex');
+            
             userInfo.classList.add('hidden');
             tasks = []; // Clear memory on logout
             renderNodes();
@@ -697,9 +705,7 @@
     }
 
     function loadData() {
-        // This function is now mostly handled by listenToFirebaseData, 
-        // but we keep it for fallback or initial logic structure.
-        // Logic moved to initMainApp
+        // Logic handled by listenToFirebaseData
     }
 
     function saveData() { 
