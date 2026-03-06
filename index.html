@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -610,7 +611,7 @@
         if (task.isCritical) node.classList.add('critical'); if (task.completed) node.classList.add('completed'); if (isActiveRoute && !task.completed) node.classList.add('route-active');
         if (currentAnalysis && currentAnalysis.recommended) { const isInRoute = currentAnalysis.recommended.tasks.some(t => t.id === task.id); if (isInRoute && !task.completed && activeRouteIndex === null) node.classList.add('recommended'); }
         const priorityConfig = { low: { label: 'Baja' }, medium: { label: 'Media' }, high: { label: 'Alta' }, critical: { label: 'Critica' } }; const priority = priorityConfig[task.priority] || priorityConfig.medium;
-        node.innerHTML = `<div class="p-4"><div class="flex items-center justify-between mb-3"><span class="tag tag-${task.priority}">${priority.label}</span>${task.completed ? '<span class="text-xs font-semibold text-[--accent]">Completada</span>' : ''}</div><h4 class="font-semibold text-base mb-2 ${task.completed ? 'line-through text-[--muted]' : ''}">${escapeHtml(task.name)}</h4><div class="flex items-center gap-4 text-xs text-[--muted]"><span class="mono font-medium">${task.duration}h</span>${task.dependencies.length > 0 ? `<span class="flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>${task.dependencies.length}</span>` : ''}</div></div><div class="border-t border-[--border] px-4 py-2.5 flex gap-3 bg-[--bg-secondary] bg-opacity-50 rounded-b-xl"><button class="connect-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--accent] transition-colors flex items-center justify-center gap-1.5 py-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Conectar</button><button class="edit-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--info] transition-colors flex items-center justify-center gap-1.5 py-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button></div>`;
+        node.innerHTML = `<div class="p-4"><div class="flex items-center justify-between mb-3"><span class="tag tag-${task.priority}">${priority.label}</span>${task.completed ? '<span class="text-xs font-semibold text-[--accent]">Completada</span>' : ''}</div><h4 class="font-semibold text-base mb-2 ${task.completed ? 'line-through text-[--muted]' : ''}">${escapeHtml(task.name)}</h4><div class="flex items-center gap-4 text-xs text-[--muted]"><span class="mono font-medium">${task.duration}h</span>${task.dependencies.length > 0 ? `<span class="flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/></svg>${task.dependencies.length}</span>` : ''}</div></div><div class="border-t border-[--border] px-4 py-2.5 flex gap-3 bg-[--bg-secondary] bg-opacity-50 rounded-b-xl"><button class="connect-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--accent] transition-colors flex items-center justify-center gap-1.5 py-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Conectar</button><button class="edit-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--info] transition-colors flex items-center justify-center gap-1.5 py-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button></div>`;
         node.addEventListener('mousedown', startDragNode); node.addEventListener('touchstart', startDragNode, { passive: false });
         node.querySelector('.connect-btn').addEventListener('click', (e) => { e.stopPropagation(); startConnection(task.id); });
         node.querySelector('.edit-btn').addEventListener('click', (e) => { e.stopPropagation(); openTaskModal(task.id); });
@@ -815,14 +816,6 @@
     // ==================== INIT ====================
     function init() { loadData(); resizeCanvas(); updateWorldTransform(); renderNodes(); setupImageUpload(); const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 14); document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0]; }
     init();
-
-    // ==================== FIX FOR MOBILE ====================
-    // Se agregan las funciones al objeto window para asegurar que los botones onclick las encuentren en móviles
-    window.openTaskModal = openTaskModal;
-    window.closeTaskModal = closeTaskModal;
-    window.saveTask = saveTask;
-    window.endConnection = endConnection;
-    window.closeRoutesModal = closeRoutesModal;
   </script>
 </body>
 </html>
