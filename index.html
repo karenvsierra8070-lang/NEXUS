@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Firebase SDKs (Necesarios para Login/Sync) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <style>
     :root {
       --bg: #08090c;
@@ -213,6 +216,10 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
+    /* Login Screen Styles */
+    #loginScreen { position: fixed; inset: 0; z-index: 9999; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+    .login-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 40px; text-align: center; max-width: 360px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+
     @media (max-width: 1024px) {
       .sidebar { position: fixed; right: -100%; top: 0; height: 100vh; width: 100%; max-width: 380px; z-index: 1500; transition: right 0.35s; }
       .sidebar.open { right: 0; }
@@ -223,139 +230,171 @@
 <body>
   <div class="bg-atmosphere"></div>
 
-  <!-- Header -->
-  <header class="fixed top-0 left-0 right-0 z-50 border-b border-[--border]" style="background: rgba(8, 9, 12, 0.92); backdrop-filter: blur(16px);">
-    <div class="max-w-[1800px] mx-auto px-4 lg:px-6 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-[--accent] to-[--info] flex items-center justify-center shadow-lg" style="box-shadow: 0 4px 20px var(--accent-glow);">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-[--bg]">
-            <circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>
-            <line x1="7" y1="5" x2="10" y2="10"/><line x1="17" y1="5" x2="14" y2="10"/><line x1="7" y1="19" x2="10" y2="14"/><line x1="17" y1="19" x2="14" y2="14"/>
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold tracking-tight">Project Nexus</h1>
-          <p class="text-xs text-[--muted] tracking-wide">Espacio de Trabajo Infinito</p>
-        </div>
+  <!-- LOGIN SCREEN (AÑADIDO) -->
+  <div id="loginScreen" class="hidden">
+    <div class="login-card">
+      <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[--accent] to-[--info] flex items-center justify-center shadow-lg">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-[--bg]">
+          <circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>
+          <line x1="7" y1="5" x2="10" y2="10"/><line x1="17" y1="5" x2="14" y2="10"/><line x1="7" y1="19" x2="10" y2="14"/><line x1="17" y1="19" x2="14" y2="14"/>
+        </svg>
       </div>
-      <div class="flex items-center gap-3">
-        <!-- BOTONES NAVEGACION -->
-        <a href="E1.html" class="btn btn-secondary hidden md:flex" title="Modo Enfoque">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span class="hidden md:inline">Enfoque</span>
-        </a>
-        <a href="L1.html" class="btn btn-secondary hidden md:flex" title="Logros">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
-          <span class="hidden md:inline">Logros</span>
-        </a>
-        
-        <button id="viewRoutesBtn" class="btn btn-secondary hidden md:flex" title="Ver Rutas">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16l-4-4 4-4"/><path d="M16 12H8"/></svg>
-          <span class="hidden md:inline">Ver Rutas</span>
-        </button>
-
-        <button id="resetViewBtn" class="btn btn-secondary hidden md:flex" title="Centrar vista">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>
-          </svg>
-        </button>
-        <button id="toggleSidebarBtn" class="btn btn-secondary lg:hidden">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-        </button>
-        <button id="addTaskBtn" class="btn btn-primary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span class="hidden sm:inline">Nueva Tarea</span>
-        </button>
-      </div>
+      <h2 class="text-2xl font-bold mb-2">Project Nexus</h2>
+      <p class="text-[--muted] mb-8">Inicia sesión para sincronizar</p>
+      <button id="loginBtn" class="btn btn-primary w-full text-base">
+        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+            <path d="M9.003 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.26c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z" fill="#34A853"/>
+            <path d="M3.964 10.712c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.96H.957C.347 6.175 0 7.55 0 9.002c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.428 0 9.002 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335"/>
+        </svg>
+        Iniciar con Google
+      </button>
+      <p id="loginError" class="text-red-500 text-xs mt-3 hidden">Error al iniciar sesión</p>
     </div>
-  </header>
+  </div>
+  <!-- FIN LOGIN SCREEN -->
 
-  <!-- Main Viewport -->
-  <main id="viewport" class="flex">
-    <div id="world">
-      <div class="grid-pattern" id="gridPattern"></div>
-      <canvas id="networkCanvas"></canvas>
-      <div id="nodesContainer"></div>
-    </div>
-    
-    <!-- Empty State -->
-    <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-50">
-      <div class="text-center max-w-md">
-        <div class="w-28 h-28 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-[--card] to-[--bg-secondary] border border-[--border] flex items-center justify-center">
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-[--muted]">
-            <circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>
-            <line x1="7" y1="5" x2="10" y2="10" stroke-dasharray="3 2"/><line x1="17" y1="5" x2="14" y2="10" stroke-dasharray="3 2"/><line x1="7" y1="19" x2="10" y2="14" stroke-dasharray="3 2"/><line x1="17" y1="19" x2="14" y2="14" stroke-dasharray="3 2"/>
-          </svg>
-        </div>
-        <h2 class="text-2xl font-bold mb-3">Espacio de Trabajo Infinito</h2>
-        <p class="text-[--muted] mb-8 leading-relaxed">Arrastra el fondo para moverte. Crea tareas y el sistema calculará la ruta óptima.</p>
-        <button onclick="openTaskModal()" class="btn btn-primary pointer-events-auto">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Crear Primera Tarea
-        </button>
-      </div>
-    </div>
-
-    <!-- Connection Mode Indicator -->
-    <div id="connectionMode" class="hidden fixed top-24 left-1/2 -translate-x-1/2 z-50">
-      <div class="bg-[--warning] text-[--bg] px-6 py-3 rounded-full font-semibold shadow-lg flex items-center gap-3" style="box-shadow: 0 8px 30px var(--warning-glow);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-        Selecciona la tarea destino
-        <button onclick="endConnection()" class="ml-2 w-6 h-6 rounded-full bg-[--bg] text-[--warning] flex items-center justify-center hover:scale-110 transition-transform">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar w-full lg:w-[420px] overflow-y-auto fixed right-0 top-0 h-full z-40 pt-20" style="height: 100vh;">
-      <div class="p-5">
-        <!-- Config -->
-        <div class="mb-6 p-4 rounded-xl bg-[--card] border border-[--border]">
-          <h3 class="text-sm font-semibold mb-4 flex items-center gap-2 text-[--muted]">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            Configuracion
-          </h3>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs text-[--muted] mb-1.5">Fecha Limite</label>
-              <input type="date" id="deadlineInput" class="input-field text-sm mono">
-            </div>
-            <div>
-              <label class="block text-xs text-[--muted] mb-1.5">Horas/Dia</label>
-              <input type="number" id="hoursPerDay" value="5" min="1" max="24" class="input-field text-sm mono">
-            </div>
+  <!-- APP CONTAINER (OCULTO HASTA LOGIN) -->
+  <div id="appContainer" class="hidden">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 border-b border-[--border]" style="background: rgba(8, 9, 12, 0.92); backdrop-filter: blur(16px);">
+      <div class="max-w-[1800px] mx-auto px-4 lg:px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-[--accent] to-[--info] flex items-center justify-center shadow-lg" style="box-shadow: 0 4px 20px var(--accent-glow);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-[--bg]">
+              <circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>
+              <line x1="7" y1="5" x2="10" y2="10"/><line x1="17" y1="5" x2="14" y2="10"/><line x1="7" y1="19" x2="10" y2="14"/><line x1="17" y1="19" x2="14" y2="14"/>
+            </svg>
           </div>
-          <button id="calculateRouteBtn" class="btn btn-primary w-full mt-4">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            Calcular Ruta Optima
+          <div>
+            <h1 class="text-xl font-bold tracking-tight">Project Nexus</h1>
+            <p class="text-xs text-[--muted] tracking-wide">Espacio de Trabajo Infinito</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <!-- BOTONES NAVEGACION -->
+          <a href="E1.html" class="btn btn-secondary hidden md:flex" title="Modo Enfoque">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span class="hidden md:inline">Enfoque</span>
+          </a>
+          <a href="L1.html" class="btn btn-secondary hidden md:flex" title="Logros">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            <span class="hidden md:inline">Logros</span>
+          </a>
+          
+          <button id="viewRoutesBtn" class="btn btn-secondary hidden md:flex" title="Ver Rutas">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16l-4-4 4-4"/><path d="M16 12H8"/></svg>
+            <span class="hidden md:inline">Ver Rutas</span>
+          </button>
+
+          <button id="resetViewBtn" class="btn btn-secondary hidden md:flex" title="Centrar vista">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>
+            </svg>
+          </button>
+          <button id="toggleSidebarBtn" class="btn btn-secondary lg:hidden">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <!-- BOTON LOGOUT AÑADIDO -->
+          <button id="logoutBtn" class="btn btn-secondary" title="Cerrar sesión">
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+          <button id="addTaskBtn" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span class="hidden sm:inline">Nueva Tarea</span>
           </button>
         </div>
+      </div>
+    </header>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-2 gap-3 mb-6">
-          <div class="stat-card"><div class="text-3xl font-bold text-[--accent] mono" id="totalTasks">0</div><div class="text-xs text-[--muted] mt-1">Total Tareas</div></div>
-          <div class="stat-card"><div class="text-3xl font-bold text-[--success] mono" id="completedTasks">0</div><div class="text-xs text-[--muted] mt-1">Completadas</div></div>
-          <div class="stat-card"><div class="text-3xl font-bold text-[--warning] mono" id="criticalPath">0</div><div class="text-xs text-[--muted] mt-1">Ruta Critica (h)</div></div>
-          <div class="stat-card"><div class="text-3xl font-bold text-[--info] mono" id="availableHours">0</div><div class="text-xs text-[--muted] mt-1">Horas Disponibles</div></div>
-        </div>
-
-        <!-- Analysis Results -->
-        <div id="analysisSection" class="hidden mb-6">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Analisis de Rutas</h3>
+    <!-- Main Viewport -->
+    <main id="viewport" class="flex">
+      <div id="world">
+        <div class="grid-pattern" id="gridPattern"></div>
+        <canvas id="networkCanvas"></canvas>
+        <div id="nodesContainer"></div>
+      </div>
+      
+      <!-- Empty State -->
+      <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-50">
+        <div class="text-center max-w-md">
+          <div class="w-28 h-28 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-[--card] to-[--bg-secondary] border border-[--border] flex items-center justify-center">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-[--muted]">
+              <circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/>
+              <line x1="7" y1="5" x2="10" y2="10" stroke-dasharray="3 2"/><line x1="17" y1="5" x2="14" y2="10" stroke-dasharray="3 2"/><line x1="7" y1="19" x2="10" y2="14" stroke-dasharray="3 2"/><line x1="17" y1="19" x2="14" y2="14" stroke-dasharray="3 2"/>
+            </svg>
           </div>
-          <div id="analysisContent"></div>
-        </div>
-
-        <!-- All Tasks -->
-        <div>
-          <h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>Todas las Tareas</h3>
-          <div id="tasksList" class="space-y-2"></div>
+          <h2 class="text-2xl font-bold mb-3">Espacio de Trabajo Infinito</h2>
+          <p class="text-[--muted] mb-8 leading-relaxed">Arrastra el fondo para moverte. Crea tareas y el sistema calculará la ruta óptima.</p>
+          <button onclick="openTaskModal()" class="btn btn-primary pointer-events-auto">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Crear Primera Tarea
+          </button>
         </div>
       </div>
-    </aside>
-  </main>
+
+      <!-- Connection Mode Indicator -->
+      <div id="connectionMode" class="hidden fixed top-24 left-1/2 -translate-x-1/2 z-50">
+        <div class="bg-[--warning] text-[--bg] px-6 py-3 rounded-full font-semibold shadow-lg flex items-center gap-3" style="box-shadow: 0 8px 30px var(--warning-glow);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Selecciona la tarea destino
+          <button onclick="endConnection()" class="ml-2 w-6 h-6 rounded-full bg-[--bg] text-[--warning] flex items-center justify-center hover:scale-110 transition-transform">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar w-full lg:w-[420px] overflow-y-auto fixed right-0 top-0 h-full z-40 pt-20" style="height: 100vh;">
+        <div class="p-5">
+          <!-- Config -->
+          <div class="mb-6 p-4 rounded-xl bg-[--card] border border-[--border]">
+            <h3 class="text-sm font-semibold mb-4 flex items-center gap-2 text-[--muted]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Configuracion
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-[--muted] mb-1.5">Fecha Limite</label>
+                <input type="date" id="deadlineInput" class="input-field text-sm mono">
+              </div>
+              <div>
+                <label class="block text-xs text-[--muted] mb-1.5">Horas/Dia</label>
+                <input type="number" id="hoursPerDay" value="5" min="1" max="24" class="input-field text-sm mono">
+              </div>
+            </div>
+            <button id="calculateRouteBtn" class="btn btn-primary w-full mt-4">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Calcular Ruta Optima
+            </button>
+          </div>
+
+          <!-- Stats -->
+          <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="stat-card"><div class="text-3xl font-bold text-[--accent] mono" id="totalTasks">0</div><div class="text-xs text-[--muted] mt-1">Total Tareas</div></div>
+            <div class="stat-card"><div class="text-3xl font-bold text-[--success] mono" id="completedTasks">0</div><div class="text-xs text-[--muted] mt-1">Completadas</div></div>
+            <div class="stat-card"><div class="text-3xl font-bold text-[--warning] mono" id="criticalPath">0</div><div class="text-xs text-[--muted] mt-1">Ruta Critica (h)</div></div>
+            <div class="stat-card"><div class="text-3xl font-bold text-[--info] mono" id="availableHours">0</div><div class="text-xs text-[--muted] mt-1">Horas Disponibles</div></div>
+          </div>
+
+          <!-- Analysis Results -->
+          <div id="analysisSection" class="hidden mb-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Analisis de Rutas</h3>
+            </div>
+            <div id="analysisContent"></div>
+          </div>
+
+          <!-- All Tasks -->
+          <div>
+            <h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>Todas las Tareas</h3>
+            <div id="tasksList" class="space-y-2"></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div> <!-- Fin App Container -->
 
   <!-- Toast Container -->
   <div id="toastContainer"></div>
@@ -420,6 +459,50 @@
   </div>
 
   <script>
+    // ==================== FIREBASE SETUP (AÑADIDO) ====================
+    var firebaseConfig = {
+      apiKey: "AIzaSyA0qX8mZbJk90Qlgzq_kPQRJEU60BR4pDo",
+      authDomain: "nexus-f0f5e.firebaseapp.com",
+      databaseURL: "https://nexus-f0f5e-default-rtdb.firebaseio.com",
+      projectId: "nexus-f0f5e",
+      storageBucket: "nexus-f0f5e.firebasestorage.app",
+      messagingSenderId: "937294267521",
+      appId: "1:937294267521:web:e9db3a496f21c829ea7980"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db = firebase.database();
+    var currentUser = null;
+    var firebaseReady = false; 
+
+    // UI Management
+    var loginScreen = document.getElementById('loginScreen');
+    var appContainer = document.getElementById('appContainer');
+
+    // Auth State Observer
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        currentUser = user;
+        loginScreen.classList.add('hidden');
+        appContainer.classList.remove('hidden');
+        initApp();
+      } else {
+        currentUser = null;
+        loginScreen.classList.remove('hidden');
+        appContainer.classList.add('hidden');
+      }
+    });
+
+    // Login/Logout
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(function(error) {
+        document.getElementById('loginError').classList.remove('hidden');
+      });
+    });
+    document.getElementById('logoutBtn').addEventListener('click', function() { auth.signOut(); });
+
+    // ==================== ORIGINAL APP LOGIC (SIN CAMBIOS) ====================
     // ==================== STATE ====================
     let tasks = [];
     let nextId = 1;
@@ -547,7 +630,13 @@
       const today = new Date().toDateString(); if (!stats.activeDays) stats.activeDays = [];
       if (!stats.activeDays.includes(today)) { stats.activeDays.push(today); saveData(); }
     }
-    function saveData() { localStorage.setItem('projectNexusDataV6', JSON.stringify({ tasks, nextId, viewPos: { x: worldX, y: worldY }, stats, unlockedAchievements: Array.from(unlockedAchievements) })); }
+    function saveData() { 
+      localStorage.setItem('projectNexusDataV6', JSON.stringify({ tasks, nextId, viewPos: { x: worldX, y: worldY }, stats, unlockedAchievements: Array.from(unlockedAchievements) })); 
+      // SINCRONIZACIÓN FIREBASE (AÑADIDO)
+      if (currentUser && firebaseReady) {
+         db.ref('users/' + currentUser.uid + '/nexusData').set({ tasks, nextId, viewPos: { x: worldX, y: worldY }, stats, unlockedAchievements: Array.from(unlockedAchievements) });
+      }
+    }
 
     // ==================== WORLD RENDERING (ORIGINAL SIN CAMBIOS) ====================
     function updateWorldTransform() { world.style.transform = `translate(${-worldX}px, ${-worldY}px)`; gridPattern.style.transform = `translate(${worldX % 50}px, ${worldY % 50}px)`; drawConnections(); }
@@ -564,7 +653,6 @@
                 if (fromNode && toNode) {
                     const fromLeft = parseInt(fromNode.style.left); const fromTop = parseInt(fromNode.style.top);
                     const toLeft = parseInt(toNode.style.left); const toTop = parseInt(toNode.style.top);
-                    // LOGICA ORIGINAL INTACTA
                     const fromX = (fromLeft - worldX) + fromNode.offsetWidth; 
                     const fromY = (fromTop - worldY) + fromNode.offsetHeight / 2;
                     const toX = toLeft - worldX; 
@@ -611,7 +699,7 @@
         if (task.isCritical) node.classList.add('critical'); if (task.completed) node.classList.add('completed'); if (isActiveRoute && !task.completed) node.classList.add('route-active');
         if (currentAnalysis && currentAnalysis.recommended) { const isInRoute = currentAnalysis.recommended.tasks.some(t => t.id === task.id); if (isInRoute && !task.completed && activeRouteIndex === null) node.classList.add('recommended'); }
         const priorityConfig = { low: { label: 'Baja' }, medium: { label: 'Media' }, high: { label: 'Alta' }, critical: { label: 'Critica' } }; const priority = priorityConfig[task.priority] || priorityConfig.medium;
-        node.innerHTML = `<div class="p-4"><div class="flex items-center justify-between mb-3"><span class="tag tag-${task.priority}">${priority.label}</span>${task.completed ? '<span class="text-xs font-semibold text-[--accent]">Completada</span>' : ''}</div><h4 class="font-semibold text-base mb-2 ${task.completed ? 'line-through text-[--muted]' : ''}">${escapeHtml(task.name)}</h4><div class="flex items-center gap-4 text-xs text-[--muted]"><span class="mono font-medium">${task.duration}h</span>${task.dependencies.length > 0 ? `<span class="flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/></svg>${task.dependencies.length}</span>` : ''}</div></div><div class="border-t border-[--border] px-4 py-2.5 flex gap-3 bg-[--bg-secondary] bg-opacity-50 rounded-b-xl"><button class="connect-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--accent] transition-colors flex items-center justify-center gap-1.5 py-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Conectar</button><button class="edit-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--info] transition-colors flex items-center justify-center gap-1.5 py-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button></div>`;
+        node.innerHTML = `<div class="p-4"><div class="flex items-center justify-between mb-3"><span class="tag tag-${task.priority}">${priority.label}</span>${task.completed ? '<span class="text-xs font-semibold text-[--accent]">Completada</span>' : ''}</div><h4 class="font-semibold text-base mb-2 ${task.completed ? 'line-through text-[--muted]' : ''}">${escapeHtml(task.name)}</h4><div class="flex items-center gap-4 text-xs text-[--muted]"><span class="mono font-medium">${task.duration}h</span>${task.dependencies.length > 0 ? `<span class="flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>${task.dependencies.length}</span>` : ''}</div></div><div class="border-t border-[--border] px-4 py-2.5 flex gap-3 bg-[--bg-secondary] bg-opacity-50 rounded-b-xl"><button class="connect-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--accent] transition-colors flex items-center justify-center gap-1.5 py-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Conectar</button><button class="edit-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--info] transition-colors flex items-center justify-center gap-1.5 py-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button></div>`;
         node.addEventListener('mousedown', startDragNode); node.addEventListener('touchstart', startDragNode, { passive: false });
         node.querySelector('.connect-btn').addEventListener('click', (e) => { e.stopPropagation(); startConnection(task.id); });
         node.querySelector('.edit-btn').addEventListener('click', (e) => { e.stopPropagation(); openTaskModal(task.id); });
@@ -813,9 +901,31 @@
     // ==================== EVENT LISTENERS ====================
     document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal()); document.getElementById('addDependencyBtn').addEventListener('click', addDependencyRow); document.getElementById('deleteTaskBtn').addEventListener('click', deleteTask); document.getElementById('calculateRouteBtn').addEventListener('click', calculateOptimalRoute); document.getElementById('toggleSidebarBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); }); document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeTaskModal(); endConnection(); closeRoutesModal(); } }); document.getElementById('taskModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeTaskModal(); }); document.getElementById('routesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeRoutesModal(); }); window.addEventListener('resize', resizeCanvas);
 
-    // ==================== INIT ====================
-    function init() { loadData(); resizeCanvas(); updateWorldTransform(); renderNodes(); setupImageUpload(); const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 14); document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0]; }
-    init();
+    // ==================== APP INIT ====================
+    function initApp() { 
+      loadData(); resizeCanvas(); updateWorldTransform(); renderNodes(); setupImageUpload(); const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 14); document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0]; 
+      
+      // SINCRONIZACIÓN INICIAL (AÑADIDO)
+      if(currentUser) {
+          db.ref('users/' + currentUser.uid + '/nexusData').once('value').then(function(snapshot) {
+              var data = snapshot.val();
+              if(data) {
+                  tasks = data.tasks || []; nextId = data.nextId || 1;
+                  if(data.viewPos) { worldX = data.viewPos.x; worldY = data.viewPos.y; }
+                  renderNodes(); updateWorldTransform();
+              }
+              firebaseReady = true;
+          });
+      }
+    }
+
+    // ==================== FIX MOBILE SCOPE (AÑADIDO AL FINAL) ====================
+    // Esto expone las funciones globalmente para que los botones onclick del HTML las encuentren en móvil.
+    window.openTaskModal = openTaskModal;
+    window.closeTaskModal = closeTaskModal;
+    window.saveTask = saveTask;
+    window.endConnection = endConnection;
+    window.closeRoutesModal = closeRoutesModal;
   </script>
 </body>
 </html>
