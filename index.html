@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Nexus - Corregido</title>
+  <title>Project Nexus - Optimizado</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,6 +62,7 @@
       background-size: 50px 50px;
       z-index: 0;
       pointer-events: none;
+      transform: translate(0, 0); 
     }
 
     /* Viewport */
@@ -73,7 +74,7 @@
       margin-top: 80px;
     }
 
-    /* World - contiene los nodos y el grid */
+    /* World */
     #world {
       position: absolute;
       top: 0;
@@ -87,14 +88,14 @@
     
     #world.panning { cursor: grabbing; }
 
-    /* Canvas - FUERA del world, siempre cubre el viewport */
     #networkCanvas {
       position: absolute;
       top: 0;
       left: 0;
       pointer-events: none;
-      z-index: 2;
-      /* El tamaño se ajusta con JS */
+      z-index: 1;
+      width: 100vw; 
+      height: 100vh; 
     }
 
     .task-node {
@@ -180,6 +181,7 @@
     .route-card.recommended { border-color: var(--accent); box-shadow: 0 0 30px var(--accent-glow); }
     .route-card.alternative { background: linear-gradient(135deg, rgba(92, 158, 255, 0.06) 0%, rgba(92, 158, 255, 0.02) 100%); border-color: rgba(92, 158, 255, 0.25); }
     
+    /* Route Item in Popup */
     .route-item { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
     .route-item:hover { border-color: var(--border-light); }
     .route-item.active { border-color: var(--purple); background: rgba(168, 85, 247, 0.05); }
@@ -199,6 +201,7 @@
     .tag-medium { background: rgba(92, 158, 255, 0.15); color: var(--info); }
     .tag-low { background: rgba(107, 117, 136, 0.15); color: var(--muted); }
 
+    /* Toast */
     #toastContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
     .toast { padding: 14px 20px; border-radius: 10px; background: var(--card); border: 1px solid var(--accent); color: var(--fg); box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: toastIn 0.3s ease; display: flex; align-items: center; gap: 10px; font-size: 14px; }
     .toast.error { border-color: var(--danger); }
@@ -235,6 +238,16 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
+        <!-- BOTONES NAVEGACION -->
+        <a href="E1.html" class="btn btn-secondary hidden md:flex" title="Modo Enfoque">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="hidden md:inline">Enfoque</span>
+        </a>
+        <a href="L1.html" class="btn btn-secondary hidden md:flex" title="Logros">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+          <span class="hidden md:inline">Logros</span>
+        </a>
+        
         <button id="viewRoutesBtn" class="btn btn-secondary hidden md:flex" title="Ver Rutas">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16l-4-4 4-4"/><path d="M16 12H8"/></svg>
           <span class="hidden md:inline">Ver Rutas</span>
@@ -258,11 +271,9 @@
 
   <!-- Main Viewport -->
   <main id="viewport" class="flex">
-    <!-- Canvas FUERA del world - siempre cubre el viewport -->
-    <canvas id="networkCanvas"></canvas>
-    
     <div id="world">
       <div class="grid-pattern" id="gridPattern"></div>
+      <canvas id="networkCanvas"></canvas>
       <div id="nodesContainer"></div>
     </div>
     
@@ -276,7 +287,7 @@
           </svg>
         </div>
         <h2 class="text-2xl font-bold mb-3">Espacio de Trabajo Infinito</h2>
-        <p class="text-[--muted] mb-8 leading-relaxed">Arrastra el fondo para moverte. Crea tareas y el sistema calculara la ruta optima.</p>
+        <p class="text-[--muted] mb-8 leading-relaxed">Arrastra el fondo para moverte. Crea tareas y el sistema calculará la ruta óptima.</p>
         <button onclick="openTaskModal()" class="btn btn-primary pointer-events-auto">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Crear Primera Tarea
@@ -298,6 +309,7 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar w-full lg:w-[420px] overflow-y-auto fixed right-0 top-0 h-full z-40 pt-20" style="height: 100vh;">
       <div class="p-5">
+        <!-- Config -->
         <div class="mb-6 p-4 rounded-xl bg-[--card] border border-[--border]">
           <h3 class="text-sm font-semibold mb-4 flex items-center gap-2 text-[--muted]">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -319,6 +331,7 @@
           </button>
         </div>
 
+        <!-- Stats -->
         <div class="grid grid-cols-2 gap-3 mb-6">
           <div class="stat-card"><div class="text-3xl font-bold text-[--accent] mono" id="totalTasks">0</div><div class="text-xs text-[--muted] mt-1">Total Tareas</div></div>
           <div class="stat-card"><div class="text-3xl font-bold text-[--success] mono" id="completedTasks">0</div><div class="text-xs text-[--muted] mt-1">Completadas</div></div>
@@ -326,6 +339,7 @@
           <div class="stat-card"><div class="text-3xl font-bold text-[--info] mono" id="availableHours">0</div><div class="text-xs text-[--muted] mt-1">Horas Disponibles</div></div>
         </div>
 
+        <!-- Analysis Results -->
         <div id="analysisSection" class="hidden mb-6">
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-sm font-semibold flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Analisis de Rutas</h3>
@@ -333,6 +347,7 @@
           <div id="analysisContent"></div>
         </div>
 
+        <!-- All Tasks -->
         <div>
           <h3 class="text-sm font-semibold mb-3 flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>Todas las Tareas</h3>
           <div id="tasksList" class="space-y-2"></div>
@@ -341,6 +356,7 @@
     </aside>
   </main>
 
+  <!-- Toast Container -->
   <div id="toastContainer"></div>
 
   <!-- Modal Visualizador de Rutas -->
@@ -376,6 +392,7 @@
         </div>
         <div><label class="block text-sm font-medium mb-2">Descripcion</label><textarea id="taskDescription" class="input-field min-h-[100px] resize-y" placeholder="Describe los detalles..."></textarea></div>
         
+        <!-- Image -->
         <div>
           <label class="block text-sm font-medium mb-2">Imagen de Referencia</label>
           <div id="imageDropZone" class="border-2 border-dashed border-[--border] rounded-xl p-6 text-center cursor-pointer hover:border-[--accent] transition-all hover:bg-[--card]">
@@ -385,6 +402,7 @@
           </div>
         </div>
         
+        <!-- Dependencies -->
         <div>
           <label class="block text-sm font-medium mb-2">Depende de (Predecesores)</label>
           <div id="dependenciesList" class="space-y-2 mb-3"></div>
@@ -421,7 +439,7 @@
     let draggedNode = null;
     let dragOffset = { x: 0, y: 0 };
 
-    // Stats
+    // Stats & Achievements
     let stats = { tasksCreated: 0, tasksCompleted: 0, connectionsMade: 0, routesCompleted: 0, routeCalculations: 0, activeDays: [] };
     let unlockedAchievements = new Set();
 
@@ -444,24 +462,69 @@
         }
     }
 
-    // ==================== ACHIEVEMENTS ====================
+    // ==================== ACHIEVEMENTS (50) ====================
     const ACHIEVEMENTS = [
-      { id: 'first_task', name: 'Primer Paso', desc: 'Crea tu primera tarea', icon: '', check: s => s.tasksCreated >= 1 },
-      { id: 'organizer', name: 'Organizador', desc: 'Crea 10 tareas', icon: '', check: s => s.tasksCreated >= 10 },
-      { id: 'first_step_c', name: 'Primer Logro', desc: 'Completa tu primera tarea', icon: '', check: s => s.tasksCompleted >= 1 },
-      { id: 'moving_forward', name: 'En Marcha', desc: 'Completa 10 tareas', icon: '', check: s => s.tasksCompleted >= 10 },
-      { id: 'connector', name: 'Conector', desc: 'Crea 10 conexiones', icon: '', check: s => s.connectionsMade >= 10 },
+      { id: 'first_task', name: 'Primer Paso', desc: 'Crea tu primera tarea', icon: '🚀', check: s => s.tasksCreated >= 1 },
+      { id: 'organizer', name: 'Organizador', desc: 'Crea 10 tareas', icon: '📋', check: s => s.tasksCreated >= 10 },
+      { id: 'planner', name: 'Planificador', desc: 'Crea 50 tareas', icon: '📑', check: s => s.tasksCreated >= 50 },
+      { id: 'architect', name: 'Arquitecto', desc: 'Crea 100 tareas', icon: '🏗️', check: s => s.tasksCreated >= 100 },
+      { id: 'visionary', name: 'Visionario', desc: 'Crea 250 tareas', icon: '🔮', check: s => s.tasksCreated >= 250 },
+      { id: 'grand_designer', name: 'Gran Diseñador', desc: 'Crea 500 tareas', icon: '🎨', check: s => s.tasksCreated >= 500 },
+      { id: 'master_creator', name: 'Maestro Creador', desc: 'Crea 1000 tareas', icon: '👑', check: s => s.tasksCreated >= 1000 },
+      { id: 'productivity_king', name: 'Rey de la Productividad', desc: 'Crea 2500 tareas', icon: '🏅', check: s => s.tasksCreated >= 2500 },
+      { id: 'titan_of_tasks', name: 'Titán de Tareas', desc: 'Crea 5000 tareas', icon: '💎', check: s => s.tasksCreated >= 5000 },
+      { id: 'legendary', name: 'Leyenda Viviente', desc: 'Crea 10000 tareas', icon: '🌟', check: s => s.tasksCreated >= 10000 },
+      { id: 'first_step_c', name: 'Primer Logro', desc: 'Completa tu primera tarea', icon: '✅', check: s => s.tasksCompleted >= 1 },
+      { id: 'moving_forward', name: 'En Marcha', desc: 'Completa 10 tareas', icon: '🎯', check: s => s.tasksCompleted >= 10 },
+      { id: 'productive', name: 'Productivo', desc: 'Completa 50 tareas', icon: '⚡', check: s => s.tasksCompleted >= 50 },
+      { id: 'achiever', name: 'Triunfador', desc: 'Completa 100 tareas', icon: '🏆', check: s => s.tasksCompleted >= 100 },
+      { id: 'unstoppable', name: 'Imparable', desc: 'Completa 250 tareas', icon: '🔥', check: s => s.tasksCompleted >= 250 },
+      { id: 'executioner', name: 'Ejecutor', desc: 'Completa 500 tareas', icon: '⚔️', check: s => s.tasksCompleted >= 500 },
+      { id: 'finisher', name: 'Finalizador', desc: 'Completa 1000 tareas', icon: '🥇', check: s => s.tasksCompleted >= 1000 },
+      { id: 'machine', name: 'Máquina', desc: 'Completa 2500 tareas', icon: '🤖', check: s => s.tasksCompleted >= 2500 },
+      { id: 'legend', name: 'Leyenda', desc: 'Completa 5000 tareas', icon: '🌈', check: s => s.tasksCompleted >= 5000 },
+      { id: 'apex', name: 'Apex', desc: 'Completa 10000 tareas', icon: '⭐', check: s => s.tasksCompleted >= 10000 },
+      { id: 'connector', name: 'Conector', desc: 'Crea 10 conexiones', icon: '🔗', check: s => s.connectionsMade >= 10 },
+      { id: 'networker', name: 'Networker', desc: 'Crea 50 conexiones', icon: '🌐', check: s => s.connectionsMade >= 50 },
+      { id: 'weaver', name: 'Tejedor', desc: 'Crea 100 conexiones', icon: '🕸️', check: s => s.connectionsMade >= 100 },
+      { id: 'spider', name: 'Araña', desc: 'Crea 500 conexiones', icon: '🕷️', check: s => s.connectionsMade >= 500 },
+      { id: 'grand_weaver', name: 'Gran Tejedor', desc: 'Crea 1000 conexiones', icon: '🌌', check: s => s.connectionsMade >= 1000 },
+      { id: 'pathfinder', name: 'Buscador de Caminos', desc: 'Completa 1 ruta', icon: '🛤️', check: s => s.routesCompleted >= 1 },
+      { id: 'navigator', name: 'Navegante', desc: 'Completa 5 rutas', icon: '🧭', check: s => s.routesCompleted >= 5 },
+      { id: 'explorer', name: 'Explorador', desc: 'Completa 10 rutas', icon: '🗺️', check: s => s.routesCompleted >= 10 },
+      { id: 'pioneer', name: 'Pionero', desc: 'Completa 50 rutas', icon: '🚩', check: s => s.routesCompleted >= 50 },
+      { id: 'conqueror', name: 'Conquistador', desc: 'Completa 100 rutas', icon: '🗽', check: s => s.routesCompleted >= 100 },
+      { id: 'balanced', name: 'Equilibrado', desc: '20 tareas creadas y 20 completadas', icon: '⚖️', check: s => s.tasksCreated >= 20 && s.tasksCompleted >= 20 },
+      { id: 'busy_bee', name: 'Abeja Obrera', desc: 'Completa 10 tareas en un día', icon: '🐝', check: s => s.dailyCompleted >= 10 },
+      { id: 'planner_pro', name: 'Planificador Pro', desc: '10 tareas pendientes a la vez', icon: '📊', check: s => s.pendingTasks >= 10 },
+      { id: 'network_master', name: 'Maestro de Redes', desc: 'Una tarea con 5 conexiones', icon: '🎯', check: s => s.maxConnections >= 5 },
+      { id: 'chain_gang', name: 'Cadena Infinita', desc: 'Ruta de 10 tareas conectadas', icon: '⛓️', check: s => s.longestChain >= 10 },
+      { id: 'speed_demon', name: 'Demonio Velocidad', desc: 'Completa 5 tareas en 1 hora', icon: '💨', check: s => s.hourlyCompleted >= 5 },
+      { id: 'perfectionist', name: 'Perfeccionista', desc: 'Completa todas las pendientes', icon: '✨', check: s => s.allClearCount >= 1 },
+      { id: 'comeback_kid', name: 'Regreso Triunfal', desc: '7 días consecutivos', icon: '📅', check: s => s.streakDays >= 7 },
+      { id: 'month_master', name: 'Maestro del Mes', desc: 'Activo 30 días', icon: '📆', check: s => s.activeDays.length >= 30 },
+      { id: 'dedication', name: 'Dedicación', desc: 'Usa la app por 100 días', icon: '💯', check: s => s.activeDays.length >= 100 },
+      { id: 'marathon', name: 'Maratón', desc: '8 horas en un día', icon: '🏃', check: s => s.dailyHours >= 8 },
+      { id: 'sprint', name: 'Sprint', desc: '20 horas en una semana', icon: '🏃‍♂️', check: s => s.weeklyHours >= 20 },
+      { id: 'centurion', name: 'Centurión', desc: '100 horas totales', icon: '⏱️', check: s => s.totalHoursCompleted >= 100 },
+      { id: 'millennium', name: 'Milenio', desc: '1000 horas totales', icon: '⏳', check: s => s.totalHoursCompleted >= 1000 },
+      { id: 'efficiency_expert', name: 'Experto Eficiencia', desc: 'Calcula rutas 50 veces', icon: '🧮', check: s => s.routeCalculations >= 50 },
+      { id: 'early_bird', name: 'Madrugador', desc: 'Tarea antes de las 7am', icon: '🐦', check: s => s.earlyBird === true },
+      { id: 'night_owl', name: 'Búho Nocturno', desc: 'Tarea después de las 11pm', icon: '🦉', check: s => s.nightOwl === true },
+      { id: 'weekend_warrior', name: 'Guerrero Fin de Semana', desc: 'Activo en Sábado y Domingo', icon: '⚔️', check: s => s.weekendWarrior >= 2 },
+      { id: 'critic', name: 'Crítico', desc: 'Crea 20 tareas Críticas', icon: '⚠️', check: s => s.criticalTasks >= 20 },
+      { id: 'pacifist', name: 'Pacifista', desc: 'Completa 50 tareas Bajas', icon: '🕊️', check: s => s.lowPriorityCompleted >= 50 },
     ];
 
-    function checkAchievements() { 
-      ACHIEVEMENTS.forEach(ach => { 
-        if (!unlockedAchievements.has(ach.id) && ach.check(stats)) { 
-          unlockedAchievements.add(ach.id); 
-          showToast(`Logro: ${ach.name}`, ach.icon); 
-          playSound('achievement'); 
-          saveData(); 
-        } 
-      }); 
+    function checkAchievements() { getStatsForCheck(); ACHIEVEMENTS.forEach(ach => { if (!unlockedAchievements.has(ach.id) && ach.check(stats)) { unlockedAchievements.add(ach.id); showToast(`Logro: ${ach.name}`, ach.icon); playSound('achievement'); saveData(); } }); }
+    function getStatsForCheck() {
+        const now = new Date(); if (now.getHours() < 7) stats.earlyBird = true; if (now.getHours() >= 23) stats.nightOwl = true;
+        const day = now.getDay(); if (day === 0 || day === 6) stats.weekendWarrior = (stats.weekendWarrior || 0) + 1;
+        stats.pendingTasks = tasks.filter(t => !t.completed).length;
+        let maxConn = 0; tasks.forEach(t => { if(t.dependencies.length > maxConn) maxConn = t.dependencies.length; }); stats.maxConnections = maxConn;
+        stats.criticalTasks = tasks.filter(t => t.priority === 'critical').length; stats.lowPriorityCompleted = tasks.filter(t => t.priority === 'low' && t.completed).length;
+        let maxChain = 0; function findChain(task, len) { if (len > maxChain) maxChain = len; tasks.filter(t => t.dependencies.includes(task.id)).forEach(t => findChain(t, len+1)); } tasks.filter(t => t.dependencies.length === 0).forEach(t => findChain(t, 1)); stats.longestChain = maxChain;
+        stats.totalHoursCompleted = tasks.filter(t => t.completed).reduce((sum, t) => sum + t.duration, 0);
     }
 
     // ==================== DOM REFS ====================
@@ -474,63 +537,33 @@
 
     // ==================== PERSISTENCE ====================
     function loadData() {
-      const saved = localStorage.getItem('projectNexusDataV7');
+      const saved = localStorage.getItem('projectNexusDataV6');
       if (saved) {
-        const data = JSON.parse(saved); 
-        tasks = data.tasks || []; 
-        nextId = data.nextId || 1;
+        const data = JSON.parse(saved); tasks = data.tasks || []; nextId = data.nextId || 1;
         if (data.viewPos) { worldX = data.viewPos.x; worldY = data.viewPos.y; }
-        if(data.stats) stats = data.stats; 
-        unlockedAchievements = new Set(data.unlockedAchievements || []);
+        if(data.stats) stats = data.stats; unlockedAchievements = new Set(data.unlockedAchievements || []);
       }
-      const today = new Date().toDateString(); 
-      if (!stats.activeDays) stats.activeDays = [];
+      const today = new Date().toDateString(); if (!stats.activeDays) stats.activeDays = [];
       if (!stats.activeDays.includes(today)) { stats.activeDays.push(today); saveData(); }
     }
-    function saveData() { 
-      localStorage.setItem('projectNexusDataV7', JSON.stringify({ 
-        tasks, nextId, viewPos: { x: worldX, y: worldY }, stats, unlockedAchievements: Array.from(unlockedAchievements) 
-      })); 
-    }
+    function saveData() { localStorage.setItem('projectNexusDataV6', JSON.stringify({ tasks, nextId, viewPos: { x: worldX, y: worldY }, stats, unlockedAchievements: Array.from(unlockedAchievements) })); }
 
-    // ==================== WORLD RENDERING ====================
-    function updateWorldTransform() { 
-      world.style.transform = `translate(${-worldX}px, ${-worldY}px)`; 
-      gridPattern.style.transform = `translate(${worldX % 50}px, ${worldY % 50}px)`; 
-      drawConnections(); 
-    }
-    
-    function resizeCanvas() { 
-      canvas.width = viewport.offsetWidth; 
-      canvas.height = viewport.offsetHeight; 
-      drawConnections(); 
-    }
+    // ==================== WORLD RENDERING (ORIGINAL SIN CAMBIOS) ====================
+    function updateWorldTransform() { world.style.transform = `translate(${-worldX}px, ${-worldY}px)`; gridPattern.style.transform = `translate(${worldX % 50}px, ${worldY % 50}px)`; drawConnections(); }
+    function resizeCanvas() { canvas.width = viewport.offsetWidth; canvas.height = viewport.offsetHeight; drawConnections(); }
 
     function drawConnections() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); 
-        ctx.lineWidth = 2;
-        
+        ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.lineWidth = 2;
         let activeRouteTaskIds = new Set();
-        if (activeRouteIndex !== null && allCalculatedRoutes[activeRouteIndex]) { 
-          allCalculatedRoutes[activeRouteIndex].tasks.forEach(t => activeRouteTaskIds.add(t.id)); 
-        }
-        
+        if (activeRouteIndex !== null && allCalculatedRoutes[activeRouteIndex]) { allCalculatedRoutes[activeRouteIndex].tasks.forEach(t => activeRouteTaskIds.add(t.id)); }
         tasks.forEach(task => {
             task.dependencies.forEach(depId => {
-                const parentTask = tasks.find(t => t.id === depId); 
-                if (!parentTask) return;
-                
-                const fromNode = document.querySelector(`[data-task-id="${depId}"]`); 
-                const toNode = document.querySelector(`[data-task-id="${task.id}"]`);
-                
+                const parentTask = tasks.find(t => t.id === depId); if (!parentTask) return;
+                const fromNode = document.querySelector(`[data-task-id="${depId}"]`); const toNode = document.querySelector(`[data-task-id="${task.id}"]`);
                 if (fromNode && toNode) {
-                    // Obtener posicion del nodo en el mundo
-                    const fromLeft = parseInt(fromNode.style.left); 
-                    const fromTop = parseInt(fromNode.style.top);
-                    const toLeft = parseInt(toNode.style.left); 
-                    const toTop = parseInt(toNode.style.top);
-                    
-                    // Convertir a coordenadas del viewport (restando el desplazamiento del mundo)
+                    const fromLeft = parseInt(fromNode.style.left); const fromTop = parseInt(fromNode.style.top);
+                    const toLeft = parseInt(toNode.style.left); const toTop = parseInt(toNode.style.top);
+                    // LOGICA ORIGINAL INTACTA
                     const fromX = (fromLeft - worldX) + fromNode.offsetWidth; 
                     const fromY = (fromTop - worldY) + fromNode.offsetHeight / 2;
                     const toX = toLeft - worldX; 
@@ -539,410 +572,84 @@
                     const isInActiveRoute = activeRouteTaskIds.has(task.id) && activeRouteTaskIds.has(depId);
                     const isInRecommended = currentAnalysis && currentAnalysis.recommended && currentAnalysis.recommended.tasks.some(t => t.id === task.id) && currentAnalysis.recommended.tasks.some(t => t.id === depId);
 
-                    ctx.beginPath(); 
-                    ctx.moveTo(fromX, fromY);
-                    
+                    ctx.beginPath(); ctx.moveTo(fromX, fromY);
                     const midX = (fromX + toX) / 2;
                     ctx.bezierCurveTo(midX + 30, fromY, midX - 30, toY, toX, toY);
 
-                    if (isInActiveRoute) { 
-                      ctx.strokeStyle = '#a855f7'; 
-                      ctx.lineWidth = 3; 
-                      ctx.shadowColor = 'rgba(168, 85, 247, 0.5)'; 
-                      ctx.shadowBlur = 8; 
-                    }
-                    else if (isInRecommended) { 
-                      ctx.strokeStyle = '#00e5a0'; 
-                      ctx.lineWidth = 3; 
-                      ctx.shadowColor = 'rgba(0, 229, 160, 0.5)'; 
-                      ctx.shadowBlur = 8; 
-                    }
-                    else { 
-                      ctx.strokeStyle = task.isCritical ? '#f5a623' : '#3a4150'; 
-                      ctx.lineWidth = task.isCritical ? 2.5 : 2; 
-                      ctx.shadowBlur = 0; 
-                    }
-                    ctx.stroke(); 
-                    ctx.shadowBlur = 0;
+                    if (isInActiveRoute) { ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 3; ctx.shadowColor = 'rgba(168, 85, 247, 0.5)'; ctx.shadowBlur = 8; }
+                    else if (isInRecommended) { ctx.strokeStyle = '#00e5a0'; ctx.lineWidth = 3; ctx.shadowColor = 'rgba(0, 229, 160, 0.5)'; ctx.shadowBlur = 8; }
+                    else { ctx.strokeStyle = task.isCritical ? '#f5a623' : '#3a4150'; ctx.lineWidth = task.isCritical ? 2.5 : 2; ctx.shadowBlur = 0; }
+                    ctx.stroke(); ctx.shadowBlur = 0;
 
-                    // Flecha
                     const angle = Math.atan2(toY - fromY, toX - midX);
-                    ctx.beginPath(); 
-                    ctx.moveTo(toX, toY);
+                    ctx.beginPath(); ctx.moveTo(toX, toY);
                     ctx.lineTo(toX - 10 * Math.cos(angle - Math.PI / 6), toY - 10 * Math.sin(angle - Math.PI / 6));
                     ctx.lineTo(toX - 10 * Math.cos(angle + Math.PI / 6), toY - 10 * Math.sin(angle + Math.PI / 6));
                     ctx.closePath();
-                    ctx.fillStyle = isInActiveRoute ? '#a855f7' : (isInRecommended ? '#00e5a0' : (task.isCritical ? '#f5a623' : '#3a4150')); 
-                    ctx.fill();
+                    ctx.fillStyle = isInActiveRoute ? '#a855f7' : (isInRecommended ? '#00e5a0' : (task.isCritical ? '#f5a623' : '#3a4150')); ctx.fill();
                 }
             });
         });
     }
 
     // ==================== PAN & INTERACTION ====================
-    viewport.addEventListener('mousedown', (e) => { 
-      if (e.target === viewport || e.target === canvas || e.target === nodesContainer || e.target.classList.contains('grid-pattern')) { 
-        isPanning = true; 
-        world.classList.add('panning'); 
-        panStartX = e.clientX + worldX; 
-        panStartY = e.clientY + worldY; 
-      } 
-    });
-    
-    window.addEventListener('mousemove', (e) => { 
-      if (isPanning) { 
-        worldX = panStartX - e.clientX; 
-        worldY = panStartY - e.clientY; 
-        updateWorldTransform(); 
-      } 
-    });
-    
-    window.addEventListener('mouseup', () => { 
-      if (isPanning) { 
-        isPanning = false; 
-        world.classList.remove('panning'); 
-        saveData(); 
-      } 
-    });
-    
-    document.getElementById('resetViewBtn').addEventListener('click', () => { 
-      if (tasks.length > 0) { 
-        const avgX = tasks.reduce((sum, t) => sum + t.x, 0) / tasks.length; 
-        const avgY = tasks.reduce((sum, t) => sum + t.y, 0) / tasks.length; 
-        worldX = avgX - viewport.offsetWidth / 2; 
-        worldY = avgY - viewport.offsetHeight / 2; 
-      } else { 
-        worldX = 0; 
-        worldY = 0; 
-      } 
-      updateWorldTransform(); 
-    });
+    viewport.addEventListener('mousedown', (e) => { if (e.target === viewport || e.target === canvas || e.target === nodesContainer || e.target.classList.contains('grid-pattern')) { isPanning = true; world.classList.add('panning'); panStartX = e.clientX + worldX; panStartY = e.clientY + worldY; } });
+    window.addEventListener('mousemove', (e) => { if (isPanning) { worldX = panStartX - e.clientX; worldY = panStartY - e.clientY; updateWorldTransform(); } });
+    window.addEventListener('mouseup', () => { if (isPanning) { isPanning = false; world.classList.remove('panning'); saveData(); } });
+    document.getElementById('resetViewBtn').addEventListener('click', () => { if (tasks.length > 0) { const avgX = tasks.reduce((sum, t) => sum + t.x, 0) / tasks.length; const avgY = tasks.reduce((sum, t) => sum + t.y, 0) / tasks.length; worldX = avgX - viewport.offsetWidth / 2; worldY = avgY - viewport.offsetHeight / 2; } else { worldX = 0; worldY = 0; } updateWorldTransform(); });
 
     // ==================== NODE RENDERING ====================
     function renderNodes() {
-        nodesContainer.innerHTML = ''; 
-        document.getElementById('emptyState').classList.toggle('hidden', tasks.length > 0);
-        
-        let activeRouteTaskIds = new Set(); 
-        if (activeRouteIndex !== null && allCalculatedRoutes[activeRouteIndex]) { 
-          allCalculatedRoutes[activeRouteIndex].tasks.forEach(t => activeRouteTaskIds.add(t.id)); 
-        }
-        
-        tasks.forEach(task => { 
-          const node = createNodeElement(task, activeRouteTaskIds.has(task.id)); 
-          nodesContainer.appendChild(node); 
-        });
-        
-        updateStats(); 
-        updateTasksList(); 
-        setTimeout(drawConnections, 50);
+        nodesContainer.innerHTML = ''; document.getElementById('emptyState').classList.toggle('hidden', tasks.length > 0);
+        let activeRouteTaskIds = new Set(); if (activeRouteIndex !== null && allCalculatedRoutes[activeRouteIndex]) { allCalculatedRoutes[activeRouteIndex].tasks.forEach(t => activeRouteTaskIds.add(t.id)); }
+        tasks.forEach(task => { const node = createNodeElement(task, activeRouteTaskIds.has(task.id)); nodesContainer.appendChild(node); });
+        updateStats(); updateTasksList(); setTimeout(drawConnections, 50);
     }
-    
     function createNodeElement(task, isActiveRoute) {
-        const node = document.createElement('div'); 
-        node.className = 'task-node'; 
-        node.dataset.taskId = task.id; 
-        node.style.left = `${task.x}px`; 
-        node.style.top = `${task.y}px`;
-        
-        if (task.isCritical) node.classList.add('critical'); 
-        if (task.completed) node.classList.add('completed'); 
-        if (isActiveRoute && !task.completed) node.classList.add('route-active');
-        if (currentAnalysis && currentAnalysis.recommended) { 
-          const isInRoute = currentAnalysis.recommended.tasks.some(t => t.id === task.id); 
-          if (isInRoute && !task.completed && activeRouteIndex === null) node.classList.add('recommended'); 
-        }
-        
-        const priorityConfig = { low: { label: 'Baja' }, medium: { label: 'Media' }, high: { label: 'Alta' }, critical: { label: 'Critica' } }; 
-        const priority = priorityConfig[task.priority] || priorityConfig.medium;
-        
-        node.innerHTML = `
-          <div class="p-4">
-            <div class="flex items-center justify-between mb-3">
-              <span class="tag tag-${task.priority}">${priority.label}</span>
-              ${task.completed ? '<span class="text-xs font-semibold text-[--accent]">Completada</span>' : ''}
-            </div>
-            <h4 class="font-semibold text-base mb-2 ${task.completed ? 'line-through text-[--muted]' : ''}">${escapeHtml(task.name)}</h4>
-            <div class="flex items-center gap-4 text-xs text-[--muted]">
-              <span class="mono font-medium">${task.duration}h</span>
-              ${task.dependencies.length > 0 ? `<span class="flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/></svg>${task.dependencies.length}</span>` : ''}
-            </div>
-          </div>
-          <div class="border-t border-[--border] px-4 py-2.5 flex gap-3 bg-[--bg-secondary] bg-opacity-50 rounded-b-xl">
-            <button class="connect-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--accent] transition-colors flex items-center justify-center gap-1.5 py-1">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Conectar
-            </button>
-            <button class="edit-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--info] transition-colors flex items-center justify-center gap-1.5 py-1">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar
-            </button>
-          </div>`;
-        
-        node.addEventListener('mousedown', startDragNode); 
-        node.addEventListener('touchstart', startDragNode, { passive: false });
+        const node = document.createElement('div'); node.className = 'task-node'; node.dataset.taskId = task.id; node.style.left = `${task.x}px`; node.style.top = `${task.y}px`;
+        if (task.isCritical) node.classList.add('critical'); if (task.completed) node.classList.add('completed'); if (isActiveRoute && !task.completed) node.classList.add('route-active');
+        if (currentAnalysis && currentAnalysis.recommended) { const isInRoute = currentAnalysis.recommended.tasks.some(t => t.id === task.id); if (isInRoute && !task.completed && activeRouteIndex === null) node.classList.add('recommended'); }
+        const priorityConfig = { low: { label: 'Baja' }, medium: { label: 'Media' }, high: { label: 'Alta' }, critical: { label: 'Critica' } }; const priority = priorityConfig[task.priority] || priorityConfig.medium;
+        node.innerHTML = `<div class="p-4"><div class="flex items-center justify-between mb-3"><span class="tag tag-${task.priority}">${priority.label}</span>${task.completed ? '<span class="text-xs font-semibold text-[--accent]">Completada</span>' : ''}</div><h4 class="font-semibold text-base mb-2 ${task.completed ? 'line-through text-[--muted]' : ''}">${escapeHtml(task.name)}</h4><div class="flex items-center gap-4 text-xs text-[--muted]"><span class="mono font-medium">${task.duration}h</span>${task.dependencies.length > 0 ? `<span class="flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/></svg>${task.dependencies.length}</span>` : ''}</div></div><div class="border-t border-[--border] px-4 py-2.5 flex gap-3 bg-[--bg-secondary] bg-opacity-50 rounded-b-xl"><button class="connect-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--accent] transition-colors flex items-center justify-center gap-1.5 py-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Conectar</button><button class="edit-btn flex-1 text-xs font-medium text-[--muted] hover:text-[--info] transition-colors flex items-center justify-center gap-1.5 py-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button></div>`;
+        node.addEventListener('mousedown', startDragNode); node.addEventListener('touchstart', startDragNode, { passive: false });
         node.querySelector('.connect-btn').addEventListener('click', (e) => { e.stopPropagation(); startConnection(task.id); });
         node.querySelector('.edit-btn').addEventListener('click', (e) => { e.stopPropagation(); openTaskModal(task.id); });
-        node.addEventListener('click', (e) => { 
-          if (connectingFrom !== null && connectingFrom !== task.id) { 
-            addDependency(connectingFrom, task.id); 
-            endConnection(); 
-          } 
-        });
+        node.addEventListener('click', (e) => { if (connectingFrom !== null && connectingFrom !== task.id) { addDependency(connectingFrom, task.id); endConnection(); } });
         return node;
     }
 
     // ==================== NODE DRAG ====================
-    function startDragNode(e) { 
-      e.stopPropagation(); 
-      if (e.target.closest('button')) return; 
-      draggedNode = e.currentTarget; 
-      draggedNode.classList.add('dragging'); 
-      const rect = draggedNode.getBoundingClientRect(); 
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX; 
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY; 
-      dragOffset = { x: clientX - rect.left, y: clientY - rect.top }; 
-      document.addEventListener('mousemove', dragNode); 
-      document.addEventListener('mouseup', endDragNode); 
-      document.addEventListener('touchmove', dragNode, { passive: false }); 
-      document.addEventListener('touchend', endDragNode); 
-    }
-    
-    function dragNode(e) { 
-      if (!draggedNode) return; 
-      e.preventDefault(); 
-      e.stopPropagation(); 
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX; 
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY; 
-      const worldPointX = clientX + worldX; 
-      const worldPointY = clientY + worldY; 
-      const x = worldPointX - dragOffset.x; 
-      const y = worldPointY - dragOffset.y; 
-      draggedNode.style.left = `${x}px`; 
-      draggedNode.style.top = `${y}px`; 
-      const task = tasks.find(t => t.id === parseInt(draggedNode.dataset.taskId)); 
-      if (task) { task.x = x; task.y = y; } 
-      drawConnections(); 
-    }
-    
-    function endDragNode() { 
-      if (draggedNode) { draggedNode.classList.remove('dragging'); saveData(); } 
-      draggedNode = null; 
-      document.removeEventListener('mousemove', dragNode); 
-      document.removeEventListener('mouseup', endDragNode); 
-      document.removeEventListener('touchmove', dragNode); 
-      document.removeEventListener('touchend', endDragNode); 
-    }
+    function startDragNode(e) { e.stopPropagation(); if (e.target.closest('button')) return; draggedNode = e.currentTarget; draggedNode.classList.add('dragging'); const rect = draggedNode.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; dragOffset = { x: clientX - rect.left, y: clientY - rect.top }; document.addEventListener('mousemove', dragNode); document.addEventListener('mouseup', endDragNode); document.addEventListener('touchmove', dragNode, { passive: false }); document.addEventListener('touchend', endDragNode); }
+    function dragNode(e) { if (!draggedNode) return; e.preventDefault(); e.stopPropagation(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const worldPointX = clientX + worldX; const worldPointY = clientY + worldY; const x = worldPointX - dragOffset.x; const y = worldPointY - dragOffset.y; draggedNode.style.left = `${x}px`; draggedNode.style.top = `${y}px`; const task = tasks.find(t => t.id === parseInt(draggedNode.dataset.taskId)); if (task) { task.x = x; task.y = y; } drawConnections(); }
+    function endDragNode() { if (draggedNode) { draggedNode.classList.remove('dragging'); saveData(); } draggedNode = null; document.removeEventListener('mousemove', dragNode); document.removeEventListener('mouseup', endDragNode); document.removeEventListener('touchmove', dragNode); document.removeEventListener('touchend', endDragNode); }
 
     // ==================== CONNECTION LOGIC ====================
     function startConnection(taskId) { connectingFrom = taskId; document.getElementById('connectionMode').classList.remove('hidden'); }
     function endConnection() { connectingFrom = null; document.getElementById('connectionMode').classList.add('hidden'); }
-    
-    function addDependency(fromId, toId) { 
-      if (hasCircularDependency(toId, fromId)) { 
-        showToast('Ciclo detectado. No se puede conectar.', 'error'); 
-        playSound('error'); 
-        return; 
-      } 
-      const task = tasks.find(t => t.id === toId); 
-      if (task && !task.dependencies.includes(fromId)) { 
-        task.dependencies.push(fromId); 
-        stats.connectionsMade++; 
-        playSound('connect'); 
-        saveData(); 
-        checkAchievements(); 
-        renderNodes(); 
-      } 
-    }
-    
-    function hasCircularDependency(taskId, newDepId, visited = new Set()) { 
-      if (taskId === newDepId) return true; 
-      if (visited.has(taskId)) return false; 
-      visited.add(taskId); 
-      const task = tasks.find(t => t.id === taskId); 
-      if (!task) return false; 
-      for (const depId of task.dependencies) { 
-        if (hasCircularDependency(depId, newDepId, visited)) return true; 
-      } 
-      return false; 
-    }
+    function addDependency(fromId, toId) { if (hasCircularDependency(toId, fromId)) { showToast('Ciclo detectado. No se puede conectar.', 'error'); playSound('error'); return; } const task = tasks.find(t => t.id === toId); if (task && !task.dependencies.includes(fromId)) { task.dependencies.push(fromId); stats.connectionsMade++; playSound('connect'); saveData(); checkAchievements(); renderNodes(); } }
+    function hasCircularDependency(taskId, newDepId, visited = new Set()) { if (taskId === newDepId) return true; if (visited.has(taskId)) return false; visited.add(taskId); const task = tasks.find(t => t.id === taskId); if (!task) return false; for (const depId of task.dependencies) { if (hasCircularDependency(depId, newDepId, visited)) return true; } return false; }
 
-    function canCompleteTask(task) { 
-      if (!task.dependencies || task.dependencies.length === 0) return true; 
-      const completedDeps = task.dependencies.filter(depId => { 
-        const depTask = tasks.find(t => t.id === depId); 
-        return depTask && depTask.completed; 
-      }).length; 
-      return completedDeps >= 1; 
-    }
+    // ==================== VALIDATION ====================
+    function canCompleteTask(task) { if (!task.dependencies || task.dependencies.length === 0) return true; const completedDeps = task.dependencies.filter(depId => { const depTask = tasks.find(t => t.id === depId); return depTask && depTask.completed; }).length; return completedDeps >= 1; }
 
     // ==================== MODAL & FORMS ====================
-    function openTaskModal(taskId = null) { 
-      const modal = document.getElementById('taskModal'); 
-      const title = document.getElementById('modalTitle'); 
-      const deleteBtn = document.getElementById('deleteTaskBtn'); 
-      
-      document.getElementById('taskId').value = ''; 
-      document.getElementById('taskName').value = ''; 
-      document.getElementById('taskDuration').value = ''; 
-      document.getElementById('taskPriority').value = 'medium'; 
-      document.getElementById('taskDescription').value = ''; 
-      document.getElementById('taskCompleted').checked = false; 
-      document.getElementById('dependenciesList').innerHTML = ''; 
-      imageData = null; 
-      document.getElementById('imagePlaceholder').classList.remove('hidden'); 
-      document.getElementById('imagePreviewContainer').classList.add('hidden'); 
-      
-      if (taskId) { 
-        const task = tasks.find(t => t.id === taskId); 
-        if (task) { 
-          title.textContent = 'Editar Tarea'; 
-          deleteBtn.classList.remove('hidden'); 
-          document.getElementById('taskId').value = task.id; 
-          document.getElementById('taskName').value = task.name; 
-          document.getElementById('taskDuration').value = task.duration; 
-          document.getElementById('taskPriority').value = task.priority; 
-          document.getElementById('taskDescription').value = task.description || ''; 
-          document.getElementById('taskCompleted').checked = task.completed; 
-          if (task.image) { 
-            imageData = task.image; 
-            document.getElementById('imagePreview').src = task.image; 
-            document.getElementById('imagePlaceholder').classList.add('hidden'); 
-            document.getElementById('imagePreviewContainer').classList.remove('hidden'); 
-          } 
-          task.dependencies.forEach(depId => addDependencyRow(depId)); 
-        } 
-      } else { 
-        title.textContent = 'Nueva Tarea'; 
-        deleteBtn.classList.add('hidden'); 
-      } 
-      modal.classList.add('active'); 
-    }
-    
+    function openTaskModal(taskId = null) { const modal = document.getElementById('taskModal'); const title = document.getElementById('modalTitle'); const deleteBtn = document.getElementById('deleteTaskBtn'); document.getElementById('taskId').value = ''; document.getElementById('taskName').value = ''; document.getElementById('taskDuration').value = ''; document.getElementById('taskPriority').value = 'medium'; document.getElementById('taskDescription').value = ''; document.getElementById('taskCompleted').checked = false; document.getElementById('dependenciesList').innerHTML = ''; imageData = null; document.getElementById('imagePlaceholder').classList.remove('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); if (taskId) { const task = tasks.find(t => t.id === taskId); if (task) { title.textContent = 'Editar Tarea'; deleteBtn.classList.remove('hidden'); document.getElementById('taskId').value = task.id; document.getElementById('taskName').value = task.name; document.getElementById('taskDuration').value = task.duration; document.getElementById('taskPriority').value = task.priority; document.getElementById('taskDescription').value = task.description || ''; document.getElementById('taskCompleted').checked = task.completed; if (task.image) { imageData = task.image; document.getElementById('imagePreview').src = task.image; document.getElementById('imagePlaceholder').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.remove('hidden'); } task.dependencies.forEach(depId => addDependencyRow(depId)); } } else { title.textContent = 'Nueva Tarea'; deleteBtn.classList.add('hidden'); } modal.classList.add('active'); }
     function closeTaskModal() { document.getElementById('taskModal').classList.remove('active'); }
-    
-    function addDependencyRow(selectedId = null) { 
-      const list = document.getElementById('dependenciesList'); 
-      const currentTaskId = parseInt(document.getElementById('taskId').value) || 0; 
-      const row = document.createElement('div'); 
-      row.className = 'flex gap-2'; 
-      const select = document.createElement('select'); 
-      select.className = 'input-field flex-1 text-sm'; 
-      const availableTasks = tasks.filter(t => t.id !== currentTaskId); 
-      select.innerHTML = '<option value="">Seleccionar...</option>' + availableTasks.map(t => `<option value="${t.id}" ${selectedId === t.id ? 'selected' : ''}>${escapeHtml(t.name)}</option>`).join(''); 
-      const removeBtn = document.createElement('button'); 
-      removeBtn.type = 'button'; 
-      removeBtn.className = 'btn btn-danger px-3'; 
-      removeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'; 
-      removeBtn.onclick = () => row.remove(); 
-      row.appendChild(select); 
-      row.appendChild(removeBtn); 
-      list.appendChild(row); 
-    }
-    
-    function saveTask() { 
-      const id = document.getElementById('taskId').value; 
-      const name = document.getElementById('taskName').value.trim(); 
-      const duration = parseFloat(document.getElementById('taskDuration').value) || 0; 
-      const priority = document.getElementById('taskPriority').value; 
-      const description = document.getElementById('taskDescription').value; 
-      let completed = document.getElementById('taskCompleted').checked; 
-      
-      if (!name) { showToast('Ingresa un nombre para la tarea.', 'error'); playSound('error'); return; } 
-      
-      const dependencies = []; 
-      document.querySelectorAll('#dependenciesList select').forEach(select => { 
-        const depId = parseInt(select.value); 
-        if (depId && !dependencies.includes(depId)) dependencies.push(depId); 
-      }); 
-      
-      const tempTask = { id: id ? parseInt(id) : nextId, dependencies, completed: false }; 
-      
-      if (id) { 
-        const task = tasks.find(t => t.id === parseInt(id)); 
-        if (task) { 
-          if (completed && !task.completed) { 
-            tempTask.completed = true; 
-            if (!canCompleteTask(tempTask)) { 
-              showToast('Completa al menos 1 dependencia primero', 'error'); 
-              playSound('error'); 
-              document.getElementById('taskCompleted').checked = false; 
-              return; 
-            } 
-            stats.tasksCompleted++; 
-            checkAchievements(); 
-          } 
-          Object.assign(task, { name, duration, priority, description, completed, dependencies, image: imageData }); 
-          playSound(task.completed ? 'complete' : 'create'); 
-        } 
-      } else { 
-        tasks.push({ 
-          id: nextId++, name, duration, priority, description, completed, dependencies, image: imageData, 
-          x: worldX + viewport.offsetWidth / 2, 
-          y: worldY + viewport.offsetHeight / 2 
-        }); 
-        stats.tasksCreated++; 
-        playSound('create'); 
-        checkAchievements(); 
-      } 
-      saveData(); 
-      renderNodes(); 
-      closeTaskModal(); 
-    }
-    
-    function deleteTask() { 
-      const id = parseInt(document.getElementById('taskId').value); 
-      if (!id) return; 
-      if (confirm('Eliminar esta tarea?')) { 
-        tasks = tasks.filter(t => t.id !== id); 
-        tasks.forEach(t => { t.dependencies = t.dependencies.filter(d => d !== id); }); 
-        playSound('delete'); 
-        saveData(); 
-        renderNodes(); 
-        closeTaskModal(); 
-      } 
-    }
-    
-    function setupImageUpload() { 
-      const dropZone = document.getElementById('imageDropZone'); 
-      const input = document.getElementById('taskImage'); 
-      const removeBtn = document.getElementById('removeImageBtn'); 
-      dropZone.addEventListener('click', () => input.click()); 
-      dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-[--accent]'); }); 
-      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[--accent]')); 
-      dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('border-[--accent]'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) handleImageFile(file); }); 
-      input.addEventListener('change', (e) => { if (e.target.files[0]) handleImageFile(e.target.files[0]); }); 
-      removeBtn.addEventListener('click', () => { imageData = null; input.value = ''; document.getElementById('imagePlaceholder').classList.remove('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); }); 
-    }
-    
-    function handleImageFile(file) { 
-      const reader = new FileReader(); 
-      reader.onload = (e) => { 
-        imageData = e.target.result; 
-        document.getElementById('imagePreview').src = imageData; 
-        document.getElementById('imagePlaceholder').classList.add('hidden'); 
-        document.getElementById('imagePreviewContainer').classList.remove('hidden'); 
-      }; 
-      reader.readAsDataURL(file); 
-    }
+    function addDependencyRow(selectedId = null) { const list = document.getElementById('dependenciesList'); const currentTaskId = parseInt(document.getElementById('taskId').value) || 0; const row = document.createElement('div'); row.className = 'flex gap-2'; const select = document.createElement('select'); select.className = 'input-field flex-1 text-sm'; const availableTasks = tasks.filter(t => t.id !== currentTaskId); select.innerHTML = '<option value="">Seleccionar...</option>' + availableTasks.map(t => `<option value="${t.id}" ${selectedId === t.id ? 'selected' : ''}>${escapeHtml(t.name)}</option>`).join(''); const removeBtn = document.createElement('button'); removeBtn.type = 'button'; removeBtn.className = 'btn btn-danger px-3'; removeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'; removeBtn.onclick = () => row.remove(); row.appendChild(select); row.appendChild(removeBtn); list.appendChild(row); }
+    function saveTask() { const id = document.getElementById('taskId').value; const name = document.getElementById('taskName').value.trim(); const duration = parseFloat(document.getElementById('taskDuration').value) || 0; const priority = document.getElementById('taskPriority').value; const description = document.getElementById('taskDescription').value; let completed = document.getElementById('taskCompleted').checked; if (!name) { showToast('Ingresa un nombre para la tarea.', 'error'); playSound('error'); return; } const dependencies = []; document.querySelectorAll('#dependenciesList select').forEach(select => { const depId = parseInt(select.value); if (depId && !dependencies.includes(depId)) dependencies.push(depId); }); const tempTask = { id: id ? parseInt(id) : nextId, dependencies, completed: false }; if (id) { const task = tasks.find(t => t.id === parseInt(id)); if (task) { if (completed && !task.completed) { tempTask.completed = true; if (!canCompleteTask(tempTask)) { showToast('Completa al menos 1 dependencia primero', 'error'); playSound('error'); document.getElementById('taskCompleted').checked = false; return; } stats.tasksCompleted++; checkAchievements(); } Object.assign(task, { name, duration, priority, description, completed, dependencies, image: imageData }); playSound(task.completed ? 'complete' : 'create'); } } else { tasks.push({ id: nextId++, name, duration, priority, description, completed, dependencies, image: imageData, x: worldX + viewport.offsetWidth / 2, y: worldY + viewport.offsetHeight / 2 }); stats.tasksCreated++; playSound('create'); checkAchievements(); } saveData(); renderNodes(); closeTaskModal(); }
+    function deleteTask() { const id = parseInt(document.getElementById('taskId').value); if (!id) return; if (confirm('¿Eliminar esta tarea?')) { tasks = tasks.filter(t => t.id !== id); tasks.forEach(t => { t.dependencies = t.dependencies.filter(d => d !== id); }); playSound('delete'); saveData(); renderNodes(); closeTaskModal(); } }
+    function setupImageUpload() { const dropZone = document.getElementById('imageDropZone'); const input = document.getElementById('taskImage'); const removeBtn = document.getElementById('removeImageBtn'); dropZone.addEventListener('click', () => input.click()); dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-[--accent]'); }); dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[--accent]')); dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('border-[--accent]'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) handleImageFile(file); }); input.addEventListener('change', (e) => { if (e.target.files[0]) handleImageFile(e.target.files[0]); }); removeBtn.addEventListener('click', () => { imageData = null; input.value = ''; document.getElementById('imagePlaceholder').classList.remove('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); }); }
+    function handleImageFile(file) { const reader = new FileReader(); reader.onload = (e) => { imageData = e.target.result; document.getElementById('imagePreview').src = imageData; document.getElementById('imagePlaceholder').classList.add('hidden'); document.getElementById('imagePreviewContainer').classList.remove('hidden'); }; reader.readAsDataURL(file); }
 
-    // ==================== ROUTE OPTIMIZATION ====================
+    // ==================== ROUTE OPTIMIZATION (CORREGIDO) ====================
     function calculateOptimalRoute() {
-        const deadline = document.getElementById('deadlineInput').value; 
-        const hoursPerDay = parseFloat(document.getElementById('hoursPerDay').value) || 5; 
-        
-        if (!deadline) { showToast('Selecciona una fecha limite.', 'error'); playSound('error'); return; }
-        
-        stats.routeCalculations++; 
-        checkAchievements();
-        
-        const deadlineDate = new Date(deadline); 
-        const today = new Date(); 
-        today.setHours(0, 0, 0, 0);
+        const deadline = document.getElementById('deadlineInput').value; const hoursPerDay = parseFloat(document.getElementById('hoursPerDay').value) || 5; if (!deadline) { showToast('Selecciona una fecha limite.', 'error'); playSound('error'); return; }
+        stats.routeCalculations++; checkAchievements();
+        const deadlineDate = new Date(deadline); const today = new Date(); today.setHours(0, 0, 0, 0);
         const diffTime = deadlineDate - today;
         const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
         const availableHours = daysRemaining * hoursPerDay;
-        
-        document.getElementById('availableHours').textContent = availableHours; 
-        tasks.forEach(t => t.isCritical = false);
+        document.getElementById('availableHours').textContent = availableHours; tasks.forEach(t => t.isCritical = false);
         
         const routes = findAllRoutesFixed();
         
@@ -950,15 +657,12 @@
             let timeAccum = 0;
             const tasksWithTimes = [];
             const sortedTasks = topologicalSort(route);
-            
             for (const task of sortedTasks) {
                 if (task.completed) continue;
                 tasksWithTimes.push({ ...task, startHour: timeAccum, endHour: timeAccum + task.duration });
                 timeAccum += task.duration;
             }
-            
             const completedCount = tasksWithTimes.filter(t => tasks.find(task => task.id === t.id)?.completed).length;
-            
             return { 
                 tasks: tasksWithTimes, 
                 taskCount: tasksWithTimes.length, 
@@ -971,11 +675,13 @@
             };
         }).filter(r => r.tasks.length > 0);
 
+        // Sort: Most tasks first, then shortest time
         allCalculatedRoutes.sort((a, b) => {
            if (b.taskCount !== a.taskCount) return b.taskCount - a.taskCount;
            return a.totalDuration - b.totalDuration;
         });
 
+        // Mark Critical (Longest duration)
         if (allCalculatedRoutes.length > 0) {
             const longestDuration = Math.max(...allCalculatedRoutes.map(r => r.totalDuration));
             allCalculatedRoutes.forEach(route => {
@@ -992,23 +698,16 @@
         document.getElementById('criticalPath').textContent = criticalDuration.toFixed(1);
 
         currentAnalysis = { recommended: allCalculatedRoutes[0] || null, alternatives: allCalculatedRoutes.slice(1, 4), availableHours, hoursPerDay, daysRemaining };
-        
-        saveData(); 
-        renderNodes(); 
-        displayAnalysis(currentAnalysis);
-        
+        saveData(); renderNodes(); displayAnalysis(currentAnalysis);
         if(document.getElementById('routesModal').classList.contains('active')) displayRoutesModal();
     }
 
     function topologicalSort(routeTasks) {
-        const sorted = []; 
-        const visited = new Set(); 
-        const visiting = new Set();
+        const sorted = []; const visited = new Set(); const visiting = new Set();
         const taskMap = new Map(routeTasks.map(t => [t.id, t]));
-        
         function visit(task) {
             if (visited.has(task.id)) return;
-            if (visiting.has(task.id)) return;
+            if (visiting.has(task.id)) return; // Cycle
             visiting.add(task.id);
             task.dependencies.forEach(depId => {
                 if (taskMap.has(depId)) visit(taskMap.get(depId));
@@ -1017,18 +716,20 @@
             visited.add(task.id);
             sorted.push(task);
         }
-        
         routeTasks.forEach(t => visit(t));
         return sorted;
     }
 
+    // CORREGIDO: Find ALL routes properly
     function findAllRoutesFixed() {
         const allRoutes = [];
         
+        // Helper: DFS
         function dfs(currentTask, currentPath, visitedIds) {
             visitedIds.add(currentTask.id);
             currentPath.push(currentTask);
 
+            // Find children (dependents) that are not completed and not visited
             const children = tasks.filter(t => 
                 !t.completed && 
                 !visitedIds.has(t.id) && 
@@ -1036,240 +737,83 @@
             );
 
             if (children.length === 0) {
+                // End of path (leaf node)
                 allRoutes.push([...currentPath]);
             } else {
+                // Continue path for each child
                 children.forEach(child => {
                     dfs(child, [...currentPath], new Set(visitedIds));
                 });
             }
         }
 
+        // Find start nodes (roots): Not completed, and (No deps OR at least one dep completed)
         const startNodes = tasks.filter(t => 
             !t.completed && 
             (t.dependencies.length === 0 || t.dependencies.some(d => tasks.find(x => x.id === d)?.completed))
         );
 
+        // Start DFS from each start node
         startNodes.forEach(start => {
             dfs(start, [], new Set());
         });
 
+        // Convert arrays of objects to arrays of task objects (already are)
         return allRoutes;
     }
 
     function displayAnalysis(analysis) {
-        const section = document.getElementById('analysisSection'); 
-        const content = document.getElementById('analysisContent'); 
-        section.classList.remove('hidden');
-        
-        if (!analysis.recommended || analysis.recommended.tasks.length === 0) { 
-          content.innerHTML = `<div class="p-4 bg-[--card] rounded-xl border border-[--border] text-center"><p class="text-[--muted]">No hay rutas posibles.</p></div>`; 
-          return; 
-        }
-        
-        const rec = analysis.recommended; 
-        const timeUsedPercent = Math.min(100, (rec.totalDuration / rec.availableHours) * 100);
-        
-        let html = `<div class="mb-4 p-4 bg-[--bg] rounded-xl border border-[--border]">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-sm text-[--muted]">Tiempo disponible</span>
-            <span class="mono text-sm font-semibold">${rec.availableHours}h (${analysis.daysRemaining} dias x ${analysis.hoursPerDay}h)</span>
-          </div>
-          <div class="time-bar">
-            <div class="time-bar-fill" style="width: ${timeUsedPercent}%; background: linear-gradient(90deg, var(--accent), var(--info));"></div>
-          </div>
-          <div class="flex justify-between mt-2 text-xs text-[--muted]">
-            <span>Usado: ${rec.totalDuration}h</span>
-            <span>Restante: ${Math.max(0, rec.availableHours - rec.totalDuration)}h</span>
-          </div>
-        </div>`;
-        
-        html += `<div class="route-card recommended mb-4">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <span class="w-7 h-7 rounded-lg bg-[--accent] flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-[--bg]"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-              <span class="font-semibold">Ruta Recomendada</span>
-            </div>
-            <span class="text-sm mono text-[--accent]">${rec.taskCount} tareas en ${rec.totalDuration}h</span>
-          </div>`;
-          
-        rec.tasks.forEach((task, i) => { 
-          const fitsInTime = task.endHour <= rec.availableHours; 
-          html += `<div class="route-step ${task.completed ? 'completed' : ''}">
-            <span class="step-number ${fitsInTime ? 'bg-[--accent] text-[--bg]' : 'bg-[--border] text-[--muted]'}">${i + 1}</span>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium truncate">${escapeHtml(task.name)}</p>
-              <div class="flex items-center gap-2 text-xs text-[--muted]">
-                <span class="mono">${task.duration}h</span>
-                <span>h${task.startHour.toFixed(0)} - h${task.endHour.toFixed(0)}</span>
-                ${!fitsInTime ? '<span class="text-[--warning]">(fuera de tiempo)</span>' : ''}
-              </div>
-            </div>
-            ${task.isCritical ? '<span class="tag tag-critical text-xs">Critica</span>' : ''}
-          </div>`; 
-          if (i < rec.tasks.length - 1) html += `<div class="route-connector"></div>`; 
-        });
-        
+        const section = document.getElementById('analysisSection'); const content = document.getElementById('analysisContent'); section.classList.remove('hidden');
+        if (!analysis.recommended || analysis.recommended.tasks.length === 0) { content.innerHTML = `<div class="p-4 bg-[--card] rounded-xl border border-[--border] text-center"><p class="text-[--muted]">No hay rutas posibles.</p></div>`; return; }
+        const rec = analysis.recommended; const timeUsedPercent = Math.min(100, (rec.totalDuration / rec.availableHours) * 100);
+        let html = `<div class="mb-4 p-4 bg-[--bg] rounded-xl border border-[--border]"><div class="flex justify-between items-center mb-2"><span class="text-sm text-[--muted]">Tiempo disponible</span><span class="mono text-sm font-semibold">${rec.availableHours}h (${analysis.daysRemaining} dias x ${analysis.hoursPerDay}h)</span></div><div class="time-bar"><div class="time-bar-fill" style="width: ${timeUsedPercent}%; background: linear-gradient(90deg, var(--accent), var(--info));"></div></div><div class="flex justify-between mt-2 text-xs text-[--muted]"><span>Usado: ${rec.totalDuration}h</span><span>Restante: ${Math.max(0, rec.availableHours - rec.totalDuration)}h</span></div></div>`;
+        html += `<div class="route-card recommended mb-4"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-[--accent] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-[--bg]"><polyline points="20 6 9 17 4 12"/></svg></span><span class="font-semibold">Ruta Recomendada</span></div><span class="text-sm mono text-[--accent]">${rec.taskCount} tareas en ${rec.totalDuration}h</span></div>`;
+        rec.tasks.forEach((task, i) => { const fitsInTime = task.endHour <= rec.availableHours; html += `<div class="route-step ${task.completed ? 'completed' : ''}"><span class="step-number ${fitsInTime ? 'bg-[--accent] text-[--bg]' : 'bg-[--border] text-[--muted]'}">${i + 1}</span><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${escapeHtml(task.name)}</p><div class="flex items-center gap-2 text-xs text-[--muted]"><span class="mono">${task.duration}h</span><span>h${task.startHour.toFixed(0)} - h${task.endHour.toFixed(0)}</span>${!fitsInTime ? '<span class="text-[--warning]">(fuera de tiempo)</span>' : ''}</div></div>${task.isCritical ? '<span class="tag tag-critical text-xs">Critica</span>' : ''}</div>`; if (i < rec.tasks.length - 1) html += `<div class="route-connector"></div>`; });
         html += `</div>`;
         content.innerHTML = html;
     }
 
     // ==================== ROUTES POPUP ====================
-    function openRoutesModal() { 
-      if(allCalculatedRoutes.length === 0) calculateOptimalRoute(); 
-      displayRoutesModal(); 
-      document.getElementById('routesModal').classList.add('active'); 
-    }
-    
+    function openRoutesModal() { if(allCalculatedRoutes.length === 0) calculateOptimalRoute(); displayRoutesModal(); document.getElementById('routesModal').classList.add('active'); }
     function closeRoutesModal() { document.getElementById('routesModal').classList.remove('active'); }
-    
     function displayRoutesModal() {
-        const content = document.getElementById('routesModalContent'); 
-        content.innerHTML = '';
-        
-        if (allCalculatedRoutes.length === 0) { 
-          content.innerHTML = '<p class="text-center text-[--muted]">No hay rutas.</p>'; 
-          return; 
-        }
-        
+        const content = document.getElementById('routesModalContent'); content.innerHTML = '';
+        if (allCalculatedRoutes.length === 0) { content.innerHTML = '<p class="text-center text-[--muted]">No hay rutas.</p>'; return; }
         allCalculatedRoutes.forEach((route, index) => {
-            const item = document.createElement('div'); 
-            item.className = 'route-item'; 
-            if (activeRouteIndex === index) item.classList.add('active');
-            
+            const item = document.createElement('div'); item.className = 'route-item'; if (activeRouteIndex === index) item.classList.add('active');
             const progressColor = route.progress === 100 ? 'var(--accent)' : 'var(--info)';
-            item.innerHTML = `
-              <div class="route-header">
-                <div>
-                  <span class="text-sm font-medium">Ruta ${index + 1}</span>
-                  <span class="text-xs text-[--muted] ml-2">${route.taskCount} tareas - ${route.totalDuration}h</span>
-                </div>
-                <span class="text-xs mono">${Math.round(route.progress)}%</span>
-              </div>
-              <div class="route-progress">
-                <div class="route-progress-fill" style="width: ${route.progress}%; background: ${progressColor};"></div>
-              </div>`;
-            
-            item.addEventListener('click', () => { 
-              activeRouteIndex = (activeRouteIndex === index) ? null : index; 
-              saveData(); 
-              renderNodes(); 
-              displayRoutesModal(); 
-            });
-            
+            item.innerHTML = `<div class="route-header"><div><span class="text-sm font-medium">Ruta ${index + 1}</span><span class="text-xs text-[--muted] ml-2">${route.taskCount} tareas - ${route.totalDuration}h</span></div><span class="text-xs mono">${Math.round(route.progress)}%</span></div><div class="route-progress"><div class="route-progress-fill" style="width: ${route.progress}%; background: ${progressColor};"></div></div>`;
+            item.addEventListener('click', () => { activeRouteIndex = (activeRouteIndex === index) ? null : index; saveData(); renderNodes(); displayRoutesModal(); });
             content.appendChild(item);
         });
     }
-    
     document.getElementById('viewRoutesBtn').addEventListener('click', openRoutesModal);
 
     // ==================== TOAST ====================
-    function showToast(message, type = 'info') { 
-      const container = document.getElementById('toastContainer'); 
-      const toast = document.createElement('div'); 
-      toast.className = `toast ${type === 'error' ? 'error' : ''}`; 
-      toast.innerHTML = `<span>${message}</span>`; 
-      container.appendChild(toast); 
-      setTimeout(() => toast.remove(), 3000); 
-    }
+    function showToast(message, type = 'info') { const container = document.getElementById('toastContainer'); const toast = document.createElement('div'); toast.className = `toast ${type === 'error' ? 'error' : ''}`; toast.innerHTML = `<span>${message}</span>`; container.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
 
     // ==================== STATS & LIST ====================
-    function updateStats() { 
-      document.getElementById('totalTasks').textContent = tasks.length; 
-      document.getElementById('completedTasks').textContent = tasks.filter(t => t.completed).length; 
-    }
-    
+    function updateStats() { document.getElementById('totalTasks').textContent = tasks.length; document.getElementById('completedTasks').textContent = tasks.filter(t => t.completed).length; }
     function updateTasksList() {
-        const list = document.getElementById('tasksList'); 
-        list.innerHTML = '';
-        
-        if (tasks.length === 0) { 
-          list.innerHTML = '<p class="text-sm text-[--muted] text-center py-4">No hay tareas creadas</p>'; 
-          return; 
-        }
-        
-        const sorted = [...tasks].sort((a, b) => { 
-          if (a.completed !== b.completed) return a.completed ? 1 : -1; 
-          const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 }; 
-          return priorityOrder[a.priority] - priorityOrder[b.priority]; 
-        });
-        
+        const list = document.getElementById('tasksList'); list.innerHTML = '';
+        if (tasks.length === 0) { list.innerHTML = '<p class="text-sm text-[--muted] text-center py-4">No hay tareas creadas</p>'; return; }
+        const sorted = [...tasks].sort((a, b) => { if (a.completed !== b.completed) return a.completed ? 1 : -1; const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 }; return priorityOrder[a.priority] - priorityOrder[b.priority]; });
         sorted.forEach(task => {
-            const item = document.createElement('div'); 
-            item.className = 'flex items-center gap-3 p-3 bg-[--card] rounded-xl border border-[--border] cursor-pointer hover:border-[--border-light] transition-all';
-            const canToggle = task.completed || canCompleteTask(task); 
-            const isLocked = !canToggle && !task.completed;
-            
-            item.innerHTML = `
-              <input type="checkbox" ${task.completed ? 'checked' : ''} class="w-4 h-4 rounded accent-[--accent] cursor-pointer ${isLocked ? 'opacity-50' : ''}" ${isLocked ? 'disabled' : ''}>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium truncate ${task.completed ? 'line-through text-[--muted]' : ''}">${escapeHtml(task.name)} ${isLocked ? '<span class="text-xs text-[--danger]">(Bloqueada)</span>' : ''}</p>
-                <div class="flex items-center gap-2 mt-1">
-                  <span class="mono text-xs text-[--muted]">${task.duration}h</span>
-                  <span class="tag tag-${task.priority}">${task.priority}</span>
-                </div>
-              </div>`;
-            
-            const checkbox = item.querySelector('input'); 
-            checkbox.addEventListener('click', (e) => { 
-              e.stopPropagation(); 
-              if (isLocked) { showToast('Completa dependencias primero', 'error'); playSound('error'); return; } 
-              toggleComplete(task.id, e); 
-            });
-            
-            item.addEventListener('click', (e) => { if (e.target.type !== 'checkbox') openTaskModal(task.id); }); 
-            list.appendChild(item);
+            const item = document.createElement('div'); item.className = 'flex items-center gap-3 p-3 bg-[--card] rounded-xl border border-[--border] cursor-pointer hover:border-[--border-light] transition-all';
+            const canToggle = task.completed || canCompleteTask(task); const isLocked = !canToggle && !task.completed;
+            item.innerHTML = `<input type="checkbox" ${task.completed ? 'checked' : ''} class="w-4 h-4 rounded accent-[--accent] cursor-pointer ${isLocked ? 'opacity-50' : ''}" ${isLocked ? 'disabled' : ''}><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate ${task.completed ? 'line-through text-[--muted]' : ''}">${escapeHtml(task.name)} ${isLocked ? '<span class="text-xs text-[--danger]">(Bloqueada)</span>' : ''}</p><div class="flex items-center gap-2 mt-1"><span class="mono text-xs text-[--muted]">${task.duration}h</span><span class="tag tag-${task.priority}">${task.priority}</span></div></div>`;
+            const checkbox = item.querySelector('input'); checkbox.addEventListener('click', (e) => { e.stopPropagation(); if (isLocked) { showToast('Completa dependencias primero', 'error'); playSound('error'); return; } toggleComplete(task.id, e); });
+            item.addEventListener('click', (e) => { if (e.target.type !== 'checkbox') openTaskModal(task.id); }); list.appendChild(item);
         });
     }
-    
-    function toggleComplete(taskId, event) { 
-      event.stopPropagation(); 
-      const task = tasks.find(t => t.id === taskId); 
-      if (!task) return; 
-      if (!task.completed && !canCompleteTask(task)) { 
-        showToast('Completa dependencias primero', 'error'); 
-        playSound('error'); 
-        return; 
-      } 
-      task.completed = !task.completed; 
-      if(task.completed) { 
-        stats.tasksCompleted++; 
-        playSound('complete'); 
-      } else { 
-        playSound('create'); 
-      } 
-      checkAchievements(); 
-      saveData(); 
-      renderNodes(); 
-      if (currentAnalysis) calculateOptimalRoute(); 
-    }
-    
+    function toggleComplete(taskId, event) { event.stopPropagation(); const task = tasks.find(t => t.id === taskId); if (!task) return; if (!task.completed && !canCompleteTask(task)) { showToast('Completa dependencias primero', 'error'); playSound('error'); return; } task.completed = !task.completed; if(task.completed) { stats.tasksCompleted++; playSound('complete'); } else { playSound('create'); } checkAchievements(); saveData(); renderNodes(); if (currentAnalysis) calculateOptimalRoute(); }
     function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text || ''; return div.innerHTML; }
 
     // ==================== EVENT LISTENERS ====================
-    document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal()); 
-    document.getElementById('addDependencyBtn').addEventListener('click', addDependencyRow); 
-    document.getElementById('deleteTaskBtn').addEventListener('click', deleteTask); 
-    document.getElementById('calculateRouteBtn').addEventListener('click', calculateOptimalRoute); 
-    document.getElementById('toggleSidebarBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); }); 
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeTaskModal(); endConnection(); closeRoutesModal(); } }); 
-    document.getElementById('taskModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeTaskModal(); }); 
-    document.getElementById('routesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeRoutesModal(); }); 
-    window.addEventListener('resize', resizeCanvas);
+    document.getElementById('addTaskBtn').addEventListener('click', () => openTaskModal()); document.getElementById('addDependencyBtn').addEventListener('click', addDependencyRow); document.getElementById('deleteTaskBtn').addEventListener('click', deleteTask); document.getElementById('calculateRouteBtn').addEventListener('click', calculateOptimalRoute); document.getElementById('toggleSidebarBtn').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); }); document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeTaskModal(); endConnection(); closeRoutesModal(); } }); document.getElementById('taskModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeTaskModal(); }); document.getElementById('routesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeRoutesModal(); }); window.addEventListener('resize', resizeCanvas);
 
     // ==================== INIT ====================
-    function init() { 
-      loadData(); 
-      resizeCanvas(); 
-      updateWorldTransform(); 
-      renderNodes(); 
-      setupImageUpload(); 
-      const defaultDate = new Date(); 
-      defaultDate.setDate(defaultDate.getDate() + 14); 
-      document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0]; 
-    }
-    
+    function init() { loadData(); resizeCanvas(); updateWorldTransform(); renderNodes(); setupImageUpload(); const defaultDate = new Date(); defaultDate.setDate(defaultDate.getDate() + 14); document.getElementById('deadlineInput').value = defaultDate.toISOString().split('T')[0]; }
     init();
   </script>
 </body>
