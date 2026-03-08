@@ -142,6 +142,7 @@
     }
 
     .task-node.critical { border-color: var(--warning); box-shadow: 0 0 30px var(--warning-glow); }
+    /* CLASE MODIFICADA: Solo ilumina si es recomendada Y cabe en el tiempo */
     .task-node.recommended { border-color: var(--accent); box-shadow: 0 0 25px var(--accent-glow), 0 0 0 2px var(--accent); }
     .task-node.route-active { border-color: var(--purple); box-shadow: 0 0 25px rgba(168, 85, 247, 0.4); }
     .task-node.completed { opacity: 0.5; }
@@ -235,7 +236,6 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <!-- BOTONES NAVEGACION RESTAURADOS -->
         <a href="E1.html" class="btn btn-secondary hidden md:flex" title="Modo Enfoque">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span class="hidden md:inline">Enfoque</span>
@@ -268,7 +268,6 @@
 
   <!-- Main Viewport -->
   <main id="viewport" class="flex">
-    <!-- Canvas FUERA del world -->
     <canvas id="networkCanvas"></canvas>
     
     <div id="world">
@@ -276,7 +275,6 @@
       <div id="nodesContainer"></div>
     </div>
     
-    <!-- Empty State -->
     <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-50">
       <div class="text-center max-w-md">
         <div class="w-28 h-28 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-[--card] to-[--bg-secondary] border border-[--border] flex items-center justify-center">
@@ -294,7 +292,6 @@
       </div>
     </div>
 
-    <!-- Connection Mode Indicator -->
     <div id="connectionMode" class="hidden fixed top-24 left-1/2 -translate-x-1/2 z-50">
       <div class="bg-[--warning] text-[--bg] px-6 py-3 rounded-full font-semibold shadow-lg flex items-center gap-3" style="box-shadow: 0 8px 30px var(--warning-glow);">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -305,7 +302,6 @@
       </div>
     </div>
 
-    <!-- Sidebar -->
     <aside id="sidebar" class="sidebar w-full lg:w-[420px] overflow-y-auto fixed right-0 top-0 h-full z-40 pt-20" style="height: 100vh;">
       <div class="p-5">
         <div class="mb-6 p-4 rounded-xl bg-[--card] border border-[--border]">
@@ -353,7 +349,6 @@
 
   <div id="toastContainer"></div>
 
-  <!-- Modal Visualizador de Rutas -->
   <div id="routesModal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
         <div class="p-6 border-b border-[--border] flex justify-between items-center">
@@ -366,7 +361,6 @@
     </div>
   </div>
 
-  <!-- Task Modal -->
   <div id="taskModal" class="modal-overlay">
     <div class="modal-content">
       <div class="p-6 border-b border-[--border]">
@@ -483,7 +477,6 @@
     const gridPattern = document.getElementById('gridPattern');
 
     // ==================== PERSISTENCE ====================
-    // CLAVE RESTAURADA A V6 PARA RECUPERAR PROGRESO
     function loadData() {
       const saved = localStorage.getItem('projectNexusDataV6');
       if (saved) {
@@ -546,7 +539,22 @@
                     const toY = toTop - worldY + toNode.offsetHeight / 2;
 
                     const isInActiveRoute = activeRouteTaskIds.has(task.id) && activeRouteTaskIds.has(depId);
-                    const isInRecommended = currentAnalysis && currentAnalysis.recommended && currentAnalysis.recommended.tasks.some(t => t.id === task.id) && currentAnalysis.recommended.tasks.some(t => t.id === depId);
+                    
+                    // *** CORRECCIÓN VISUAL: Verificar si AMBAS tareas son "feasible" (caben en tiempo) ***
+                    let isInFeasibleRecommended = false;
+                    if (currentAnalysis && currentAnalysis.recommended) {
+                        const recRoute = currentAnalysis.recommended;
+                        const taskData = recRoute.tasks.find(t => t.id === task.id);
+                        const depData = recRoute.tasks.find(t => t.id === depId);
+                        
+                        // Solo iluminar la conexión si ambas tareas existen en la ruta y caben en el tiempo
+                        if (taskData && depData && 
+                            taskData.endHour <= recRoute.availableHours && 
+                            depData.endHour <= recRoute.availableHours) {
+                            
+                            isInFeasibleRecommended = true;
+                        }
+                    }
 
                     ctx.beginPath(); 
                     ctx.moveTo(fromX, fromY);
@@ -560,7 +568,7 @@
                       ctx.shadowColor = 'rgba(168, 85, 247, 0.5)'; 
                       ctx.shadowBlur = 8; 
                     }
-                    else if (isInRecommended) { 
+                    else if (isInFeasibleRecommended) { 
                       ctx.strokeStyle = '#00e5a0'; 
                       ctx.lineWidth = 3; 
                       ctx.shadowColor = 'rgba(0, 229, 160, 0.5)'; 
@@ -580,7 +588,14 @@
                     ctx.lineTo(toX - 10 * Math.cos(angle - Math.PI / 6), toY - 10 * Math.sin(angle - Math.PI / 6));
                     ctx.lineTo(toX - 10 * Math.cos(angle + Math.PI / 6), toY - 10 * Math.sin(angle + Math.PI / 6));
                     ctx.closePath();
-                    ctx.fillStyle = isInActiveRoute ? '#a855f7' : (isInRecommended ? '#00e5a0' : (task.isCritical ? '#f5a623' : '#3a4150')); 
+                    
+                    // Color de la flecha igual que la línea
+                    let arrowColor = '#3a4150';
+                    if (isInActiveRoute) arrowColor = '#a855f7';
+                    else if (isInFeasibleRecommended) arrowColor = '#00e5a0';
+                    else if (task.isCritical) arrowColor = '#f5a623';
+                    
+                    ctx.fillStyle = arrowColor; 
                     ctx.fill();
                 }
             });
@@ -656,9 +671,16 @@
         if (task.isCritical) node.classList.add('critical'); 
         if (task.completed) node.classList.add('completed'); 
         if (isActiveRoute && !task.completed) node.classList.add('route-active');
-        if (currentAnalysis && currentAnalysis.recommended) { 
-          const isInRoute = currentAnalysis.recommended.tasks.some(t => t.id === task.id); 
-          if (isInRoute && !task.completed && activeRouteIndex === null) node.classList.add('recommended'); 
+        
+        // *** CORRECCIÓN VISUAL: Solo añadir clase 'recommended' si cabe en el tiempo ***
+        if (currentAnalysis && currentAnalysis.recommended && activeRouteIndex === null) { 
+            const routeTaskData = currentAnalysis.recommended.tasks.find(t => t.id === task.id);
+            if (routeTaskData && !task.completed) {
+                // Verificar si esta tarea específica cabe en el tiempo disponible
+                if (routeTaskData.endHour <= currentAnalysis.recommended.availableHours) {
+                    node.classList.add('recommended'); 
+                }
+            }
         }
         
         const priorityConfig = { low: { label: 'Baja' }, medium: { label: 'Media' }, high: { label: 'Alta' }, critical: { label: 'Critica' } }; 
@@ -915,7 +937,7 @@
       const removeBtn = document.getElementById('removeImageBtn'); 
       dropZone.addEventListener('click', () => input.click()); 
       dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-[--accent]'); }); 
-      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[--accent]')); 
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[--accent]'); }); 
       dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('border-[--accent]'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) handleImageFile(file); }); 
       input.addEventListener('change', (e) => { if (e.target.files[0]) handleImageFile(e.target.files[0]); }); 
       removeBtn.addEventListener('click', () => { imageData = null; input.value = ''; document.getElementById('imagePlaceholder').classList.remove('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); }); 
@@ -954,7 +976,6 @@
         
         const routes = findAllRoutesFixed();
         
-        // Calcular rutas y métricas de "feasibilidad" (qué tanto caben en el tiempo)
         allCalculatedRoutes = routes.map(route => {
             let timeAccum = 0;
             const tasksWithTimes = [];
@@ -968,11 +989,8 @@
             
             const completedCount = tasksWithTimes.filter(t => tasks.find(task => task.id === t.id)?.completed).length;
             
-            // *** NUEVA LÓGICA DE PUNTUACIÓN ***
-            // Calcular cuántas tareas caben realmente en el tiempo disponible
             const feasibleTasks = tasksWithTimes.filter(t => t.endHour <= availableHours);
             const feasibleCount = feasibleTasks.length;
-            // Duración útil real (lo que realmente se puede avanzar)
             const feasibleDuration = feasibleTasks.length > 0 ? feasibleTasks[feasibleTasks.length - 1].endHour : 0;
 
             return { 
@@ -984,28 +1002,17 @@
                 daysRemaining, 
                 hoursPerDay, 
                 progress: tasksWithTimes.length > 0 ? (completedCount / tasksWithTimes.length) * 100 : 0,
-                feasibleCount,      // Cuántas tareas se pueden hacer
-                feasibleDuration    // Cuántas horas útiles se llenan
+                feasibleCount,
+                feasibleDuration
             };
         }).filter(r => r.tasks.length > 0);
 
-        // *** NUEVO ORDENAMIENTO INTELIGENTE ***
         allCalculatedRoutes.sort((a, b) => {
-            // 1. Prioridad absoluta: Rutas donde más tareas caben en el tiempo límite
             if (b.feasibleCount !== a.feasibleCount) return b.feasibleCount - a.feasibleCount;
-
-            // 2. Si tienen las mismas tareas realizables, priorizar la que mejor utiliza el tiempo
-            if (a.feasibleCount > 0) {
-                // Si ambas tienen tareas realizables, preferimos la que llena más el tiempo disponible
-                return b.feasibleDuration - a.feasibleDuration;
-            }
-            
-            // 3. Si ninguna tarea cabe en ninguna ruta (feasibleCount es 0 en ambas),
-            // recomendamos la ruta más corta (menor desborde de tiempo)
+            if (a.feasibleCount > 0) return b.feasibleDuration - a.feasibleDuration;
             return a.totalDuration - b.totalDuration;
         });
 
-        // Identificar Ruta Crítica (para estilo visual naranja, sigue siendo la más larga)
         if (allCalculatedRoutes.length > 0) {
             const longestDuration = Math.max(...allCalculatedRoutes.map(r => r.totalDuration));
             allCalculatedRoutes.forEach(route => {
@@ -1097,7 +1104,6 @@
         }
         
         const rec = analysis.recommended; 
-        // Usamos feasibleDuration para la barra de progreso real
         const timeUsedPercent = Math.min(100, (rec.feasibleDuration / rec.availableHours) * 100);
         
         let html = `<div class="mb-4 p-4 bg-[--bg] rounded-xl border border-[--border]">
