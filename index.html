@@ -954,6 +954,7 @@
         
         const routes = findAllRoutesFixed();
         
+        // Calcular rutas y métricas de "feasibilidad" (qué tanto caben en el tiempo)
         allCalculatedRoutes = routes.map(route => {
             let timeAccum = 0;
             const tasksWithTimes = [];
@@ -967,6 +968,13 @@
             
             const completedCount = tasksWithTimes.filter(t => tasks.find(task => task.id === t.id)?.completed).length;
             
+            // *** NUEVA LÓGICA DE PUNTUACIÓN ***
+            // Calcular cuántas tareas caben realmente en el tiempo disponible
+            const feasibleTasks = tasksWithTimes.filter(t => t.endHour <= availableHours);
+            const feasibleCount = feasibleTasks.length;
+            // Duración útil real (lo que realmente se puede avanzar)
+            const feasibleDuration = feasibleTasks.length > 0 ? feasibleTasks[feasibleTasks.length - 1].endHour : 0;
+
             return { 
                 tasks: tasksWithTimes, 
                 taskCount: tasksWithTimes.length, 
@@ -975,15 +983,29 @@
                 availableHours, 
                 daysRemaining, 
                 hoursPerDay, 
-                progress: tasksWithTimes.length > 0 ? (completedCount / tasksWithTimes.length) * 100 : 0 
+                progress: tasksWithTimes.length > 0 ? (completedCount / tasksWithTimes.length) * 100 : 0,
+                feasibleCount,      // Cuántas tareas se pueden hacer
+                feasibleDuration    // Cuántas horas útiles se llenan
             };
         }).filter(r => r.tasks.length > 0);
 
+        // *** NUEVO ORDENAMIENTO INTELIGENTE ***
         allCalculatedRoutes.sort((a, b) => {
-           if (b.taskCount !== a.taskCount) return b.taskCount - a.taskCount;
-           return a.totalDuration - b.totalDuration;
+            // 1. Prioridad absoluta: Rutas donde más tareas caben en el tiempo límite
+            if (b.feasibleCount !== a.feasibleCount) return b.feasibleCount - a.feasibleCount;
+
+            // 2. Si tienen las mismas tareas realizables, priorizar la que mejor utiliza el tiempo
+            if (a.feasibleCount > 0) {
+                // Si ambas tienen tareas realizables, preferimos la que llena más el tiempo disponible
+                return b.feasibleDuration - a.feasibleDuration;
+            }
+            
+            // 3. Si ninguna tarea cabe en ninguna ruta (feasibleCount es 0 en ambas),
+            // recomendamos la ruta más corta (menor desborde de tiempo)
+            return a.totalDuration - b.totalDuration;
         });
 
+        // Identificar Ruta Crítica (para estilo visual naranja, sigue siendo la más larga)
         if (allCalculatedRoutes.length > 0) {
             const longestDuration = Math.max(...allCalculatedRoutes.map(r => r.totalDuration));
             allCalculatedRoutes.forEach(route => {
@@ -1075,7 +1097,8 @@
         }
         
         const rec = analysis.recommended; 
-        const timeUsedPercent = Math.min(100, (rec.totalDuration / rec.availableHours) * 100);
+        // Usamos feasibleDuration para la barra de progreso real
+        const timeUsedPercent = Math.min(100, (rec.feasibleDuration / rec.availableHours) * 100);
         
         let html = `<div class="mb-4 p-4 bg-[--bg] rounded-xl border border-[--border]">
           <div class="flex justify-between items-center mb-2">
@@ -1086,8 +1109,8 @@
             <div class="time-bar-fill" style="width: ${timeUsedPercent}%; background: linear-gradient(90deg, var(--accent), var(--info));"></div>
           </div>
           <div class="flex justify-between mt-2 text-xs text-[--muted]">
-            <span>Usado: ${rec.totalDuration}h</span>
-            <span>Restante: ${Math.max(0, rec.availableHours - rec.totalDuration)}h</span>
+            <span>Utilizado: ${rec.feasibleDuration}h (de ${rec.totalDuration}h totales)</span>
+            <span>Libre: ${Math.max(0, rec.availableHours - rec.feasibleDuration)}h</span>
           </div>
         </div>`;
         
@@ -1099,7 +1122,7 @@
               </span>
               <span class="font-semibold">Ruta Recomendada</span>
             </div>
-            <span class="text-sm mono text-[--accent]">${rec.taskCount} tareas en ${rec.totalDuration}h</span>
+            <span class="text-sm mono text-[--accent]">${rec.feasibleCount} tareas en ${rec.feasibleDuration}h</span>
           </div>`;
           
         rec.tasks.forEach((task, i) => { 
@@ -1151,7 +1174,7 @@
               <div class="route-header">
                 <div>
                   <span class="text-sm font-medium">Ruta ${index + 1}</span>
-                  <span class="text-xs text-[--muted] ml-2">${route.taskCount} tareas - ${route.totalDuration}h</span>
+                  <span class="text-xs text-[--muted] ml-2">${route.feasibleCount} tareas realizables - ${route.totalDuration}h total</span>
                 </div>
                 <span class="text-xs mono">${Math.round(route.progress)}%</span>
               </div>
