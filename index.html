@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Nexus - Corregido</title>
+  <title>Project Nexus - Estable</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,7 +52,6 @@
         radial-gradient(ellipse 50% 50% at 50% 50%, rgba(18, 21, 28, 1) 0%, var(--bg) 100%);
     }
 
-    /* Grid Patron Infinito */
     .grid-pattern {
       position: absolute;
       inset: -200%; 
@@ -64,7 +63,6 @@
       pointer-events: none;
     }
 
-    /* Viewport */
     #viewport {
       position: relative;
       width: 100%;
@@ -73,7 +71,6 @@
       margin-top: 80px;
     }
 
-    /* World - contiene los nodos y el grid */
     #world {
       position: absolute;
       top: 0;
@@ -87,14 +84,12 @@
     
     #world.panning { cursor: grabbing; }
 
-    /* Canvas - FUERA del world, siempre cubre el viewport */
     #networkCanvas {
       position: absolute;
       top: 0;
       left: 0;
       pointer-events: none;
       z-index: 2;
-      /* El tamaño se ajusta con JS */
     }
 
     .task-node {
@@ -142,12 +137,10 @@
     }
 
     .task-node.critical { border-color: var(--warning); box-shadow: 0 0 30px var(--warning-glow); }
-    /* CLASE MODIFICADA: Solo ilumina si es recomendada Y cabe en el tiempo */
     .task-node.recommended { border-color: var(--accent); box-shadow: 0 0 25px var(--accent-glow), 0 0 0 2px var(--accent); }
     .task-node.route-active { border-color: var(--purple); box-shadow: 0 0 25px rgba(168, 85, 247, 0.4); }
     .task-node.completed { opacity: 0.5; }
 
-    /* Modal & UI Components */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(12px);
       z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px;
@@ -179,7 +172,6 @@
     
     .route-card { background: linear-gradient(135deg, rgba(0, 229, 160, 0.08) 0%, rgba(92, 158, 255, 0.05) 100%); border: 1px solid rgba(0, 229, 160, 0.25); border-radius: 14px; padding: 18px; }
     .route-card.recommended { border-color: var(--accent); box-shadow: 0 0 30px var(--accent-glow); }
-    .route-card.alternative { background: linear-gradient(135deg, rgba(92, 158, 255, 0.06) 0%, rgba(92, 158, 255, 0.02) 100%); border-color: rgba(92, 158, 255, 0.25); }
     
     .route-item { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
     .route-item:hover { border-color: var(--border-light); }
@@ -208,13 +200,11 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
     @media (max-width: 1024px) {
       .sidebar { position: fixed; right: -100%; top: 0; height: 100vh; width: 100%; max-width: 380px; z-index: 1500; transition: right 0.35s; }
       .sidebar.open { right: 0; }
     }
-    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
   </style>
 </head>
 <body>
@@ -236,6 +226,7 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
+        <!-- Botones restaurados -->
         <a href="E1.html" class="btn btn-secondary hidden md:flex" title="Modo Enfoque">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span class="hidden md:inline">Enfoque</span>
@@ -414,7 +405,7 @@
     let activeRouteIndex = null; 
     let allCalculatedRoutes = []; 
 
-    // World State (Pan)
+    // World State
     let worldX = 0; 
     let worldY = 0;
     let isPanning = false;
@@ -540,18 +531,16 @@
 
                     const isInActiveRoute = activeRouteTaskIds.has(task.id) && activeRouteTaskIds.has(depId);
                     
-                    // *** CORRECCIÓN VISUAL: Verificar si AMBAS tareas son "feasible" (caben en tiempo) ***
+                    // Lógica corregida para líneas verdes (solo si no hay selección manual morada)
                     let isInFeasibleRecommended = false;
-                    if (currentAnalysis && currentAnalysis.recommended) {
+                    if (activeRouteIndex === null && currentAnalysis && currentAnalysis.recommended) {
                         const recRoute = currentAnalysis.recommended;
                         const taskData = recRoute.tasks.find(t => t.id === task.id);
                         const depData = recRoute.tasks.find(t => t.id === depId);
                         
-                        // Solo iluminar la conexión si ambas tareas existen en la ruta y caben en el tiempo
                         if (taskData && depData && 
                             taskData.endHour <= recRoute.availableHours && 
                             depData.endHour <= recRoute.availableHours) {
-                            
                             isInFeasibleRecommended = true;
                         }
                     }
@@ -563,13 +552,13 @@
                     ctx.bezierCurveTo(midX + 30, fromY, midX - 30, toY, toX, toY);
 
                     if (isInActiveRoute) { 
-                      ctx.strokeStyle = '#a855f7'; 
+                      ctx.strokeStyle = '#a855f7'; // Morado
                       ctx.lineWidth = 3; 
                       ctx.shadowColor = 'rgba(168, 85, 247, 0.5)'; 
                       ctx.shadowBlur = 8; 
                     }
                     else if (isInFeasibleRecommended) { 
-                      ctx.strokeStyle = '#00e5a0'; 
+                      ctx.strokeStyle = '#00e5a0'; // Verde
                       ctx.lineWidth = 3; 
                       ctx.shadowColor = 'rgba(0, 229, 160, 0.5)'; 
                       ctx.shadowBlur = 8; 
@@ -589,7 +578,6 @@
                     ctx.lineTo(toX - 10 * Math.cos(angle + Math.PI / 6), toY - 10 * Math.sin(angle + Math.PI / 6));
                     ctx.closePath();
                     
-                    // Color de la flecha igual que la línea
                     let arrowColor = '#3a4150';
                     if (isInActiveRoute) arrowColor = '#a855f7';
                     else if (isInFeasibleRecommended) arrowColor = '#00e5a0';
@@ -670,13 +658,13 @@
         
         if (task.isCritical) node.classList.add('critical'); 
         if (task.completed) node.classList.add('completed'); 
-        if (isActiveRoute && !task.completed) node.classList.add('route-active');
+        if (isActiveRoute && !task.completed) node.classList.add('route-active'); // Morado
         
-        // *** CORRECCIÓN VISUAL: Solo añadir clase 'recommended' si cabe en el tiempo ***
-        if (currentAnalysis && currentAnalysis.recommended && activeRouteIndex === null) { 
+        // Verde (Recomendada que cabe en tiempo)
+        // Solo si NO hay selección manual
+        if (activeRouteIndex === null && currentAnalysis && currentAnalysis.recommended) { 
             const routeTaskData = currentAnalysis.recommended.tasks.find(t => t.id === task.id);
             if (routeTaskData && !task.completed) {
-                // Verificar si esta tarea específica cabe en el tiempo disponible
                 if (routeTaskData.endHour <= currentAnalysis.recommended.availableHours) {
                     node.classList.add('recommended'); 
                 }
@@ -937,7 +925,7 @@
       const removeBtn = document.getElementById('removeImageBtn'); 
       dropZone.addEventListener('click', () => input.click()); 
       dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-[--accent]'); }); 
-      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[--accent]'); }); 
+      dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('border-[--accent]'); }); 
       dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('border-[--accent]'); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) handleImageFile(file); }); 
       input.addEventListener('change', (e) => { if (e.target.files[0]) handleImageFile(e.target.files[0]); }); 
       removeBtn.addEventListener('click', () => { imageData = null; input.value = ''; document.getElementById('imagePlaceholder').classList.remove('hidden'); document.getElementById('imagePreviewContainer').classList.add('hidden'); }); 
@@ -956,6 +944,9 @@
 
     // ==================== ROUTE OPTIMIZATION ====================
     function calculateOptimalRoute() {
+        // *** FIX: Resetear selección manual al recalcular ***
+        activeRouteIndex = null; 
+        
         const deadline = document.getElementById('deadlineInput').value; 
         const hoursPerDay = parseFloat(document.getElementById('hoursPerDay').value) || 5; 
         
@@ -1294,6 +1285,10 @@
     document.getElementById('taskModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeTaskModal(); }); 
     document.getElementById('routesModal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeRoutesModal(); }); 
     window.addEventListener('resize', resizeCanvas);
+
+    // Auto-calcular al cambiar inputs
+    document.getElementById('deadlineInput').addEventListener('change', calculateOptimalRoute);
+    document.getElementById('hoursPerDay').addEventListener('input', calculateOptimalRoute);
 
     // ==================== INIT ====================
     function init() { 
